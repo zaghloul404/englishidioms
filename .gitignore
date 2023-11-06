@@ -1,0 +1,11 @@
+# Untracked files:
+
+.idea/
+.python-version
+__pycache__/
+build/
+dist/
+englishidioms.egg-info/
+venv/
+englishidioms/__pycache__/
+delete.py
