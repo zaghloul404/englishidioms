@@ -6,6 +6,7 @@ __pycache__/
 build/
 dist/
 englishidioms.egg-info/
-venv/
+.venv/
 englishidioms/__pycache__/
 delete.py
+.DS_Store
