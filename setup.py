@@ -1,4 +1,3 @@
-import nltk
 from nltk import download
 from setuptools import find_packages, setup
 from setuptools.command.install import install
