@@ -38,26 +38,19 @@ idiomatic_matches = look_closer(potential_matches, sentence)
 print(idiomatic_matches)
 """
 
-import re
-import json
-from nltk.stem.wordnet import WordNetLemmatizer
 import itertools
-import importlib.resources  # https://stackoverflow.com/questions/60687577/trying-to-read-json-file-within-a-python-package
+import json
+import os
+import re
 
+from nltk.stem.wordnet import WordNetLemmatizer
 
-# with importlib.resources.open_text(
-#     "englishidioms", "src/phrases.json", encoding="UTF-8"
-# ) as file:
-#     data = json.load(file)
+# Determine the package-relative path to phrases.json
+package_dir = os.path.dirname(__file__)
+json_path = os.path.join(package_dir, "phrases.json")
 
-# Get the package path
-package_path = importlib.resources.files("englishidioms")
-
-# Construct the full file path
-file_path = package_path / "phrases.json"
-
-# Open the file
-with open(file_path, encoding="UTF-8") as file:
+# Load the JSON file
+with open(json_path, "r", encoding="UTF-8") as file:
     data = json.load(file)
 
 
@@ -472,9 +465,11 @@ def look_closer(potential_matches, sentence):
             ddict["distance"] = (
                 0
                 if max(distance) == 0
-                else max(distance)
-                if max(distance) > 3
-                else sum(distance) / len(distance)
+                else (
+                    max(distance)
+                    if max(distance) > 3
+                    else sum(distance) / len(distance)
+                )
             )
 
     # pprint(record)
