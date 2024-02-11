@@ -1,21 +1,11 @@
-from nltk import download
 from setuptools import find_packages, setup
-from setuptools.command.install import install
-
-
-class InstallCommand(install):
-    def run(self):
-        install.run(self)
-        # Download WordNet data during the installation
-        download("wordnet")
-
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name="englishidioms",
-    version="0.0.2",
+    version="0.0.3",
     author="Mahmoud Zaghloul",
     description="An efficient Python package for detecting and identifying English idiomatic expressions and phrases within sentences.",
     long_description=long_description,
@@ -30,6 +20,5 @@ setup(
     python_requires=">=3.10",
     py_modules=["englishidioms"],
     package_dir={"englishidioms": "englishidioms"},
-    install_requires=["nltk==3.7"],
-    cmdclass={"install": InstallCommand},
+    install_requires=["nltk==3.8.1"],
 )

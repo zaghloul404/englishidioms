@@ -43,6 +43,7 @@ import json
 import os
 import re
 
+import nltk
 from nltk.stem.wordnet import WordNetLemmatizer
 
 # Determine the package-relative path to phrases.json
@@ -52,6 +53,10 @@ json_path = os.path.join(package_dir, "phrases.json")
 # Load the JSON file
 with open(json_path, "r", encoding="UTF-8") as file:
     data = json.load(file)
+
+# manually point nltk to my top level nltk_data folder that includes wordnet - https://www.nltk.org/data.html
+nltk_data_dir = os.path.join(os.path.dirname(__file__), "nltk_data")
+nltk.data.path.append(nltk_data_dir)
 
 
 def get_match_span(tuple_list):
