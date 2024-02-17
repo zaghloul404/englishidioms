@@ -23,12 +23,11 @@ Note:
     Before using this script, ensure that you have already run 'M_validate.py' to generate the validation data.
 """
 
-
+import json
 import os
+import pickle
 import re
 import sys
-import json
-import pickle
 
 
 def generate_report(validation_file):
@@ -57,7 +56,7 @@ def generate_report(validation_file):
 """
     )
 
-    with open("englishidioms/src/phrases.json", encoding="UTF-8") as f:
+    with open("englishidioms/phrases.json", encoding="UTF-8") as f:
         phrases = json.load(f)
 
     report_str = (
