@@ -1,7 +1,8 @@
 """ Separate single phrase entries from multiple phrase entries
 
 Description:
-This script goes through ranges.pickle and determines if each dictionary entry contains a single or multiple idiomatic expressions.
+This script goes through ranges.pickle and determines if each dictionary entry contains 
+a single or multiple idiomatic expressions.
 
 Example of a dictionary entry with a single expression:
     abandon oneself to something to yield to the comforts or
@@ -16,22 +17,30 @@ Example of a dictionary entry with multiple expressions:
     driver’s test blindfolded.
 
 Input:
-- ranges.pickle: This pickle file contains a list of tuples, where each tuple consists of two integers representing the start and end lines of dictionary entries in 'clean-output.docx'.
+- ranges.pickle: This pickle file contains a list of tuples, where each tuple 
+  consists of two integers representing the start and end lines of dictionary 
+  entries in 'clean-output.docx'.
 
 Output:
 - ranges_SNGL.pickle: Ranges for entries with single expressions (list of tuples).
 - ranges_MULT.pickle: Ranges for entries with multiple expressions (list of tuples).
 - single_phrase_entries.txt (optional): Entries with single expressions (text file).
-- single_phrase_entries.docx (optional): Entries with single expressions in DOCX format for better readability.
+- single_phrase_entries.docx (optional): Entries with single expressions in DOCX format 
+  for better readability.
 - multiple_phrase_entries.txt (optional): Entries with multiple expressions (text file).
-- multiple_phrase_entries.docx (optional): Entries with multiple expressions in DOCX format for better readability.
+- multiple_phrase_entries.docx (optional): Entries with multiple expressions in DOCX format
+  for better readability.
 
 Thought Process:
-- A dictionary entry consists of three core parts: entry head, definition, and example, each with unique font formatting.
-- We differentiate between single and multiple idiomatic expressions based on characteristics of the entry head.
-- To analyze each entry in 'clean-output.docx', we break it down into 'runs' and use the 'runtype()' function to identify each part.
+- A dictionary entry consists of three core parts: entry head, definition, and example, 
+  each with unique font formatting.
+- We differentiate between single and multiple idiomatic expressions based on characteristics
+  of the entry head.
+- To analyze each entry in 'clean-output.docx', we break it down into 'runs' and use the 
+  'runtype()' function to identify each part.
 - This approach helps us identify the entry head.
-- If the entry head includes 'and' in 'Minion-Regular' font with a text size of 7, it indicates multiple expressions.
+- If the entry head includes 'and' in 'Minion-Regular' font with a text size of 7, 
+  it indicates multiple expressions.
 - If the entry head contains a semicolon ';', it also suggests the presence of multiple expressions.
 
 
@@ -50,11 +59,12 @@ Example:
 python B_breakitup.py
 """
 
-import docx
 import pickle
-from tqdm import tqdm
-from Z_module import runtype, cleanup, copy_docx
 
+import docx
+from tqdm import tqdm
+
+from Z_module import cleanup, copy_docx, runtype
 
 # load [ranges]
 with open("files/ranges.pickle", "rb") as file:
@@ -106,7 +116,7 @@ with open("files/ranges_SNGL.pickle", "wb") as file:
 with open("files/ranges_MULT.pickle", "wb") as file:
     pickle.dump(ranges_MULT, file)
 
-# Output File #3 (optional) - uncomment lines 110-122
+# Output File #3 (optional)
 # save single phrase entries to a text file
 # print("creating single_phrase_entries.txt")
 # text_file_1 = str()
@@ -122,11 +132,11 @@ with open("files/ranges_MULT.pickle", "wb") as file:
 # with open("files/single_phrase_entries.txt", "w") as myfile:
 #     myfile.write(text_file_1)
 
-# Output File #4 (optional) - uncomment line 126
+# Output File #4 (optional)
 # save single phrase entries to a docx file - for better readability
 # copy_docx(ranges_SNGL, "single_phrase_entries")
 
-# Output File #5 (optional) - uncomment lines 130-142
+# Output File #5 (optional)
 # save multiple phrase entries to a text file
 # print("creating multiple_phrase_entries.txt")
 # text_file_2 = str()
@@ -142,6 +152,6 @@ with open("files/ranges_MULT.pickle", "wb") as file:
 # with open("files/multiple_phrase_entries.txt", "w") as myfile:
 #     myfile.write(text_file_2)
 
-# Output File #6 (optional) - uncomment line 146
+# Output File #6 (optional)
 # save multiple phrase entries to a docx file - for better readability
 # copy_docx(ranges_MULT, "multiple_phrase_entries")

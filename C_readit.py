@@ -1,34 +1,41 @@
 """ Parse Dictionary Entries with Multiple Idiomatic Expressions
 
 Description:
-This script processes dictionary entries with multiple idiomatic expressions in 'clean-output.docx', extracting and organizing the following data for each entry:
+This script processes dictionary entries with multiple idiomatic expressions in 
+'clean-output.docx', extracting and organizing the following data for each entry:
 - phrase (string): The idiomatic expression in plain text format.
 - phrase_html (string): The idiomatic expression in HTML format.
-- definition (string): The definition(s) and example(s) of the idiomatic expression in plain text format.
-- definition_html (string): The definition(s) and example(s) of the idiomatic expression in HTML format.
+- definition (string): The definition(s) and example(s) of the idiomatic expression 
+in plain text format.
+- definition_html (string): The definition(s) and example(s) of the idiomatic expression 
+in HTML format.
 - runs (list): A list of 'runs' in the entry head.
-- alt (list): A list of alternative naming for each run in the runs list, used to identify the type of each run. The runs and alt lists are always of the same length.
+- alt (list): A list of alternative naming for each run in the runs list, used to identify 
+the type of each run. The runs and alt lists are always of the same length.
 
 Input:
-- ranges_MULT.pickle: A pickle file containing a list of tuples, where each tuple represents the start and end lines of dictionary entries in 'clean-output.docx'.
+- ranges_MULT.pickle: A pickle file containing a list of tuples, where each tuple 
+represents the start and end lines of dictionary entries in 'clean-output.docx'.
 
 Output:
 - phrases.json: A JSON file containing data collected from all dictionary entries.
-- entry_details.pickle: A binary file containing processed details from the 'cleanup()' function for faster runtime on subsequent script runs.
+- entry_details.pickle: A binary file containing processed details from the 'cleanup()' 
+function for faster runtime on subsequent script runs.
 
 Thought Process:
-- We iterate through dictionary entries with multiple expressions in 'clean-output.docx', extracting the entry head and breaking it down into single expressions.
+- We iterate through dictionary entries with multiple expressions in 'clean-output.docx', 
+extracting the entry head and breaking it down into single expressions.
 - All single expressions share the same definition(s) and example(s) within the entry.
-- We package the collected data for each expression into Python dictionaries and save them to phrases.json.
+- We package the collected data for each expression into Python dictionaries and save 
+it to phrases.json.
+
 
 Runtime:
 - Creating phrases.json for the first time: Completed in 19 minutes.
-- most of that time is consumed by 'cleanup()' function which saves all the output of
-Completed in 1 minutes and 52 seconds.
-
-Runtime:
-- Creating phrases.json for the first time: Completed in 19 minutes.
-- Note: Most of the time consumed is for processing entries through the 'cleanup()' function for the first time. The output of all the function processing gets saved to 'entry_details.pickle' so that when you run the script for the second time, the runtime becomes 1 minute and 52 seconds.
+- Note: Most of the time consumed is for processing entries through the 'cleanup()' function 
+for the first time. 
+The output of all the function processing gets saved to 'entry_details.pickle' so that when 
+you run the script for the second time, the runtime becomes 1 minute and 52 seconds.
 
 
 Usage:
@@ -38,12 +45,14 @@ Example:
 python C_readit.py
 """
 
-import docx
-import pickle
 import json
+import pickle
 import re
+
+import docx
 from tqdm import tqdm
-from Z_module import CompactJSONEncoder, runtype, cleanup, parse_entry
+
+from Z_module import CompactJSONEncoder, cleanup, parse_entry, runtype
 
 
 def split_by_semicolon(alt, runs):

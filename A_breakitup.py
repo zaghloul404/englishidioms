@@ -5,9 +5,11 @@ This script goes through clean-output.docx and breaks it into individual diction
 and gets the range (start line, end line) of each entry - non-valid entries are ignored.
 
 Example of a valid dictionary entry:
-    the ABCs of something Fig. the basic facts or principles of something. _I have never mastered the ABCs of car maintenance.
+    the ABCs of something Fig. the basic facts or principles of something. 
+    _ I have never mastered the ABCs of car maintenance.
 
-non-valid entries are there to reference a previous/next entry or some other entry. e.g. "able to breathe (freely) again Go to previous."
+non-valid entries are there to reference a previous/next entry or some other entry. 
+e.g. "able to breathe (freely) again Go to previous."
 
 Input:
 - clean-output.docx: The input DOCX file containing data to process.
@@ -20,8 +22,10 @@ Output:
 
 Thought Process:
 - we loop through the lines of the docx file, and look for the range of each entry.
-- the goal here is recognize individual dictionary entries and know where each entry exists in the book.
-- in other words, we should be able to tell that entry #1 goes from line 0 through 3, entry #2 goes from line 3 through 6, etc.
+- the goal here is recognize individual dictionary entries and know where each entry 
+  exists in the book.
+- in other words, we should be able to tell that entry #1 goes from line 0 through 3, 
+  entry #2 goes from line 3 through 6, etc.
 - the ranges will be used later to parse data from each entry.
 
 Runtime:
@@ -37,15 +41,19 @@ Example:
 python A_breakitup.py
 """
 
+import pickle
 
 import docx
-import pickle
 from tqdm import tqdm
+
 from Z_module import copy_docx
 
 
 def typically():
-    """returns True if the beginning of the line looks like this: 'be ~; go ~; run ~; turn ~.) _ When did the'"""
+    """
+    returns True if the beginning of the line looks like this:
+    'be ~; go ~; run ~; turn ~.) _ When did the'
+    """
     try:
         if (
             line.runs[0].bold
@@ -55,7 +63,7 @@ def typically():
             and line.runs[1].text.strip() == "~"
         ):
             return True
-        elif (
+        if (
             line.runs[0].bold
             and line.runs[0].font.name == "Formata-Medium"
             and line.runs[1].font.name == "Minion-Regular"
@@ -77,7 +85,7 @@ lines = doc.paragraphs
 """
 how to tell if this is the beginning of an entry
 1: line begins with a bold text
-2: line begins with 'a', 'an' 'the', and then bold text
+2: line begins with 'a' 'an' 'the', and then bold text
 """
 articles = [
     "a",
@@ -105,8 +113,9 @@ for line_number, line in enumerate(lines):
     if len(line.text) == 0:
         continue
 
-    # keep in mind: if there is a single empty line on the docx document, it would miss up the code and return a IndexError: list index out of range
-    #               because of 'lines[line_number -1].runs[-1]' part as the empty line won't have any runs
+    # keep in mind: if there is a single empty line in the docx document,
+    # it would miss up the code and return a IndexError: list index out of range
+    # because of 'lines[line_number -1].runs[-1]' part as the empty line won't have any runs
 
     if (
         # ignore the line if it begins with a constant, and the previous line ends with a variable
@@ -117,10 +126,12 @@ for line_number, line in enumerate(lines):
             and lines[line_number - 1].runs[-1].font.size.pt == float("9.0")
         )
         and
-        # ignore the line if the previous line ends with 'Usually' | this picks up entries with a long phrase
+        # ignore the line if the previous line ends with 'Usually'
+        # this picks up entries with a long phrase
         (not lines[line_number - 1].runs[-1].text.strip().endswith("Usually"))
         and
-        # ignore the line if the previous line ends with a constant | this picks up entries with a long phrase
+        # ignore the line if the previous line ends with a constant
+        # this picks up entries with a long phrase
         (
             not (
                 lines[line_number - 1].runs[-1].bold
@@ -137,7 +148,8 @@ for line_number, line in enumerate(lines):
         # ignore lines in [ignore]
         (line_number not in ignore)
         and
-        # sometimes the beginning of the line is just an example. example numbers come in bold fond. ignore those lines
+        # sometimes the beginning of the line is just a definition.
+        # definition numbers come in bold fond. ignore those lines
         (
             line.runs[0].text.strip()
             not in ["1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.", "10."]
@@ -146,7 +158,8 @@ for line_number, line in enumerate(lines):
         # ignore the line if it begins like this: ''be ~; go ~; run ~; turn ~.) _ When did the''
         (not typically())
         and (
-            # if the 1st run in the line is bold and has 'Formata-Medium' then it's probably a beginning of a phrase
+            # if the 1st run in the line is bold and has 'Formata-Medium'
+            # then it's probably a beginning of a phrase
             (line.runs[0].bold and line.runs[0].font.name == "Formata-Medium")
             or
             # if the 1st run is 'a','an', or 'the' and the 2nd run is bold
@@ -157,7 +170,8 @@ for line_number, line in enumerate(lines):
                 and line.runs[1].font.name == "Formata-Medium"
             )
             or
-            # if the 1st run is in runs0vairable and the 2nd run is bold (and the 2nd run does not start with ')' )
+            # if the 1st run is in runs0vairable and the 2nd run is bold
+            # (and the 2nd run does not start with ')' )
             (
                 line.runs[0].text.strip().lower() in runs0vairable
                 and line.runs[0].font.name == "Formata-Condensed"
@@ -181,12 +195,17 @@ for line_number, line in enumerate(lines):
         beginning.append(line_number)
 
         # let take a closer look at the current line - break it down into runs
-        # In the context of the Python-docx library, "runs" refer to a sequence of characters within a paragraph in a Microsoft Word document that share the same set of character-level formatting properties.
-        # Runs are used to represent portions of text with consistent formatting, such as font style, size, color, and other character-level attributes.
+        # In the context of the Python-docx library, "runs" refer to a sequence of characters
+        # within a paragraph in a Microsoft Word document that share the same set of
+        # character-level formatting properties.
+        # Runs are used to represent portions of text with consistent formatting,
+        # such as font style, size, color, and other character-level attributes.
         runs = line.runs
         for run in runs:
-            # sometimes an entry could contain two phrases, and there is an 'and' separating them. this could lead to the next line having it's 1st run as bold.
-            # in this case the next line should not be considered as a new entry, but rather a continuation of the same entry
+            # sometimes an entry could contain two phrases, and there is an 'and' separating them.
+            # this could lead to the next line having it's 1st run as bold.
+            # in this case the next line should not be considered as a new entry,
+            # but rather a continuation of the same entry
 
             if (
                 run.text.strip() == "and"
@@ -199,7 +218,8 @@ for line_number, line in enumerate(lines):
 
 # create ranges for each entry
 for i, v in enumerate(beginning[:-1]):
-    # NOTE: the final entry in the document won't be included, because there is no next beginning, and we can't calculate range this way
+    # NOTE: the final entry in the document won't be included, because there is no next beginning,
+    # and we can't calculate range this way
     start = v
     end = beginning[i + 1] - 1
     ranges.append((start, end))
@@ -253,7 +273,8 @@ for s, e in ranges:
                     # 785 matches
                     ranges_to_delete.append((s, e))
 
-        # check one more time for those entries where the 1st line ends with 'Go' and the 2nd line begins with 'to'
+        # check one more time for those entries where the 1st line ends with 'Go'
+        # and the 2nd line begins with 'to'
         if (
             lines[s].runs[-1].text.strip().endswith("Go")
             and lines[s].runs[-1].font.name == "Minion-Regular"
@@ -324,7 +345,7 @@ with open("files/ranges.pickle", "wb") as file:
     pickle.dump(clean_ranges, file)
 
 
-# Output File #2 (optional) - uncomment lines 329-340
+# Output File #2 (optional)
 # save ranges_to_delete to a txt file to make sure only bad entries were eliminated
 # text_file_1 = str()
 # for s, e in ranges_to_delete:
@@ -340,9 +361,10 @@ with open("files/ranges.pickle", "wb") as file:
 #     myfile.write(text_file_1)
 
 
-# Output File #3 (optional) - uncomment lines 346-358
+# Output File #3 (optional)
 # save clean_ranges to a text file
-# Note: writing the whole file to a string variable and calling write() once is 16x faster than calling write() 3 times in every iteration
+# Note: writing the whole file to a string variable and calling write() once
+# is 16x faster than calling write() 3 times in every iteration
 # print("creating clean_entries.txt")
 # text_file_2 = str()
 # for s, e in tqdm(clean_ranges):
@@ -358,6 +380,6 @@ with open("files/ranges.pickle", "wb") as file:
 #     myfile.write(text_file_2)
 
 
-# Output File #4 (optional) - uncomment line # 364
+# Output File #4 (optional)
 # save clean_ranges to a docx file - for better readability
 # copy_docx(clean_ranges, "clean_entries")

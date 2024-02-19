@@ -1,21 +1,25 @@
 """
 Utility Functions for Multiple Modules
 
-This script contains a collection of utility functions that are shared and utilized by multiple modules within the project.
-Grouping these functions in a single script enhances code modularity, making it easier to maintain and update the functions from a central location.
+This script contains a collection of utility functions that are shared and 
+utilized by multiple modules within the project.
+Grouping these functions in a single script enhances code modularity, 
+making it easier to maintain and update the functions from a central location.
 
-Feel free to extend this script with additional utility functions as needed to support various parts of the project.
+Feel free to extend this script with additional utility functions as needed to 
+support various parts of the project.
 """
 
-import sys
-import os
-import re
-import pickle
 import json
+import os
+import pickle
+import re
+import sys
+
 import docx
-from tqdm import tqdm
-from docx.shared import Pt  # for run.font.size = Pt(r.font.size.pt)
 import mammoth  # to convert docx to html
+from docx.shared import Pt  # for run.font.size = Pt(r.font.size.pt)
+from tqdm import tqdm
 
 
 class CompactJSONEncoder(json.JSONEncoder):
@@ -116,27 +120,48 @@ class CompactJSONEncoder(json.JSONEncoder):
 def runtype(ri, run, mode=""):
     """
     Function Description:
-    The runtype function examines the runs produced by python-docx and generates an alternative (a meaning) for each run based on its text style properties.
+    The runtype function examines the runs produced by python-docx and generates an alternative
+    (a meaning) for each run based on its text style properties.
     It returns the alternative as a string.
 
     Function Parameters:
     - ri (int): Stands for run index. It represents the index of the run being examined.
     - run (str): The actual run, which is a text string extracted from 'clean-output.docx'.
-    - mode (optional, str): An optional parameter to consider ['the', 'a', 'an'] as a term regardless of its index in the entry.
-    This is primarily used to fix certain cases where alt, run is not being handled correctly. By default, mode is an empty string.
+    - mode (optional, str): An optional parameter to consider ['the', 'a', 'an'] as a term
+      regardless of its index in the entry.This is primarily used to fix certain cases
+      where alt, run is not being handled correctly. By default, mode is an empty string.
 
     Function Returns:
 
-    - alternative (str): A string representing the alternative meaning or category of the run based on its text style properties.
+    - alternative (str): A string representing the alternative meaning or category of the run
+      based on its text style properties.
 
-    The runtype function takes a run and analyzes its text style properties to determine its meaning.
-    It checks for various style properties, such as boldness, font name, and font size, to categorize the run into different alternatives.
-    The mode parameter allows for special handling of certain cases where alt, run needs to be adjusted.
+    The runtype function takes a run and analyzes its text style properties to determine its meaning
+    It checks for various style properties, such as boldness, font name, and font size,
+    to categorize the run into different alternatives.
+    The mode parameter allows for special handling of certain cases where alt, run needs to be
+    adjusted.
 
     Note:
     parameter mode affects the following 94 entries
-    [[634, 642], [701, 706], [1695, 1698], [4872, 4886], [4978, 4981], [5209, 5213], [5239, 5246], [5323, 5325], [6023, 6028], [6394, 6400], [6556, 6561], [8503, 8508], [8670, 8679], [14612, 14619], [14620, 14628], [15271, 15274], [15586, 15591], [16272, 16275], [16399, 16404], [17238, 17248], [17267, 17269], [17270, 17273], [20502, 20508], [20845, 20849], [21608, 21618], [22796, 22802], [22860, 22864], [23392, 23395], [23883, 23888], [23981, 23990], [26601, 26606], [31062, 31068], [31263, 31266], [31442, 31448], [31549, 31556], [31799, 31803], [32188, 32192], [32607, 32610], [32631, 32634], [34303, 34305], [34598, 34604], [34623, 34628], [36078, 36081], [36082, 36087], [36869, 36873], [37143, 37148], [37627, 37631], [44409, 44419], [44424, 44428], [47005, 47012], [47042, 47044], [47345, 47349], [47540, 47548], [47575, 47583], [48171, 48174], [48305, 48308], [48318, 48321], [48322, 48328], [50327, 50332], [50664, 50673], [50808, 50812], [51641, 51647], [52986, 52989], [55055, 55059], [56938, 56942], [57356, 57360], [58966, 58974], [64653, 64658], [64659, 64663], [65400, 65402], [65408, 65412], [66320, 66323], [66388, 66391], [68832, 68835], [71819, 71825], [72045, 72048], [72390, 72397], [72613, 72618], [73210, 73214], [73849, 73856], [75139, 75141], [76109, 76111], [78661, 78668], [79184, 79187], [79952, 79957], [80210, 80214], [81854, 81859], [81904, 81907], [82682, 82688], [83441, 83446], [83984, 83986], [84390, 84394], [87046, 87049], [87970, 87978]]
-    13 of those 94 entries are actually ['the', 'a', 'an'] at the very end of the line and in fact the beginning of a definition - will fix this later
+    [[634, 642], [701, 706], [1695, 1698], [4872, 4886], [4978, 4981], [5209, 5213], [5239, 5246],
+    [5323, 5325], [6023, 6028], [6394, 6400], [6556, 6561], [8503, 8508], [8670, 8679],
+    [14612, 14619], [14620, 14628], [15271, 15274], [15586, 15591], [16272, 16275],
+    [16399, 16404], [17238, 17248], [17267, 17269], [17270, 17273], [20502, 20508], [20845, 20849],
+    [21608, 21618], [22796, 22802], [22860, 22864], [23392, 23395], [23883, 23888], [23981, 23990],
+    [26601, 26606], [31062, 31068], [31263, 31266], [31442, 31448], [31549, 31556], [31799, 31803],
+    [32188, 32192], [32607, 32610], [32631, 32634], [34303, 34305], [34598, 34604], [34623, 34628],
+    [36078, 36081], [36082, 36087], [36869, 36873], [37143, 37148], [37627, 37631], [44409, 44419],
+    [44424, 44428], [47005, 47012], [47042, 47044], [47345, 47349], [47540, 47548], [47575, 47583],
+    [48171, 48174], [48305, 48308], [48318, 48321], [48322, 48328], [50327, 50332], [50664, 50673],
+    [50808, 50812], [51641, 51647], [52986, 52989], [55055, 55059], [56938, 56942], [57356, 57360],
+    [58966, 58974], [64653, 64658], [64659, 64663], [65400, 65402], [65408, 65412], [66320, 66323],
+    [66388, 66391], [68832, 68835], [71819, 71825], [72045, 72048], [72390, 72397], [72613, 72618],
+    [73210, 73214], [73849, 73856], [75139, 75141], [76109, 76111], [78661, 78668], [79184, 79187],
+    [79952, 79957], [80210, 80214], [81854, 81859], [81904, 81907], [82682, 82688], [83441, 83446],
+    [83984, 83986], [84390, 84394], [87046, 87049], [87970, 87978]]
+    13 of those 94 entries are actually ['the', 'a', 'an'] at the very end of the line,
+    and in fact the beginning of a definition - will fix this later
     """
 
     terms = [
@@ -175,7 +200,7 @@ def runtype(ri, run, mode=""):
     ):
         return "asterisk"
     elif (
-        (ri == 0 or ri == 1)
+        (ri in (0, 1))
         and run.text.strip().lower() in ["the", "a", "an"]
         and run.font.name == "Minion-Regular"
         and run.font.size.pt == float("8.5")
@@ -238,7 +263,8 @@ def runtype(ri, run, mode=""):
 def cleanup(line_alt_list, line_runs_list):
     """
     Function Description:
-    The cleanup function examines the line_alt_list and line_runs_list produced by python-docx and runtype(), and it removes any items that should not be part of an entry head.
+    The cleanup function examines the line_alt_list and line_runs_list produced by python-docx
+    and runtype(), and it removes any items that should not be part of an entry head.
     It returns modified line_alt_list and line_runs_list that represent an entry head.
 
     Function Parameters:
@@ -249,8 +275,10 @@ def cleanup(line_alt_list, line_runs_list):
     - line_alt_list (list): A modified list of alternative meanings representing an entry head.
     - line_runs_list (list): A modified list of runs representing an entry head.
 
-    The cleanup function is designed to process and refine the provided lists to isolate the entry head from other content in a document.
-    It performs several checks to remove specific elements that are not part of the entry head and returns the cleaned lists.
+    The cleanup function is designed to process and refine the provided lists to isolate the
+    entry head from other content in a document.
+    It performs several checks to remove specific elements that are not part of the
+    entry head and returns the cleaned lists.
     """
 
     try:
@@ -283,7 +311,8 @@ def cleanup(line_alt_list, line_runs_list):
         line_alt_list.pop(-1)
         line_runs_list.pop(-1)
 
-    # remove 'article' if it was picked up at the very end of entry head - 13 match (all from multiple phrase entries)
+    # remove 'article' if it was picked up at the very end of entry head - 13 match
+    # (all from multiple phrase entries)
     if line_alt_list[-1] == "article" and line_runs_list[-1].strip().lower() in [
         "the",
         "a",
