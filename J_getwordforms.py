@@ -25,7 +25,9 @@ python J_getwordforms.py
 """
 
 import json
+
 from word_forms.word_forms import get_word_forms
+
 from Z_module import CompactJSONEncoder
 
 
@@ -60,7 +62,7 @@ def get_forms(word):
 
 
 # load the dictionary json file
-with open("englishidioms/src/phrases.json", encoding="UTF-8") as f:
+with open("englishidioms/phrases.json", encoding="UTF-8") as f:
     data = json.load(f)
 
 for id_number, entry in enumerate(data["dictionary"]):
@@ -102,5 +104,5 @@ for id_number, entry in enumerate(data["dictionary"]):
     entry.update(new_dict)
 
 # overwrite the file
-with open("englishidioms/src/phrases.json", "w", encoding="UTF-8") as f:
+with open("englishidioms/phrases.json", "w", encoding="UTF-8") as f:
     json.dump(data, f, indent=2, cls=CompactJSONEncoder, ensure_ascii=False)

@@ -22,6 +22,7 @@ python E_tidyup.py
 
 import json
 import re
+
 from Z_module import CompactJSONEncoder
 
 
@@ -833,7 +834,7 @@ def fixpairs(line_alt, line_runs, second_run=0):
 
 
 # open phrases.json
-with open("englishidioms/src/phrases.json", encoding="UTF-8") as f:
+with open("englishidioms/phrases.json", encoding="UTF-8") as f:
     data = json.load(f)
 
 # create a json string
@@ -938,5 +939,5 @@ for entry in data["dictionary"]:
         file["dictionary"].append(data)
 
 # overwrite the file
-with open("englishidioms/src/phrases.json", "w", encoding="UTF8") as f:
+with open("englishidioms/phrases.json", "w", encoding="UTF8") as f:
     json.dump(file, f, indent=2, cls=CompactJSONEncoder, ensure_ascii=False)

@@ -29,12 +29,14 @@ Example:
 python D_readit.py
 """
 
-import re
-import docx
-import pickle
 import json
+import pickle
+import re
+
+import docx
 from tqdm import tqdm
-from Z_module import CompactJSONEncoder, runtype, cleanup, parse_entry
+
+from Z_module import CompactJSONEncoder, cleanup, parse_entry, runtype
 
 # load single phrase entry ranges []
 with open("files/ranges_SNGL.pickle", "rb") as file:
@@ -45,7 +47,7 @@ doc = docx.Document("files/clean-output.docx")
 lines = doc.paragraphs
 
 # open phrases.json
-with open("englishidioms/src/phrases.json", encoding="UTF8") as f:
+with open("englishidioms/phrases.json", encoding="UTF8") as f:
     file = json.load(f)
 
 print(
@@ -89,5 +91,5 @@ for s, e in tqdm(ranges_SNGL):
     file["dictionary"].append(data)
 
 # save file
-with open("englishidioms/src/phrases.json", "w", encoding="UTF8") as f:
+with open("englishidioms/phrases.json", "w", encoding="UTF8") as f:
     json.dump(file, f, indent=2, cls=CompactJSONEncoder, ensure_ascii=False)

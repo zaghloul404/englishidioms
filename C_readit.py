@@ -230,5 +230,5 @@ for s, e in tqdm(ranges_MULT):
         file["dictionary"].append(data)
 
 # save it all to phrases.json
-with open("englishidioms/src/phrases.json", "w", encoding="UTF8") as f:
+with open("englishidioms/phrases.json", "w", encoding="UTF8") as f:
     json.dump(file, f, indent=2, cls=CompactJSONEncoder, ensure_ascii=False)

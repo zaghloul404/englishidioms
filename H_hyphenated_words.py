@@ -23,11 +23,11 @@ This script will affect or alter 273 entries in 'phrases.json'.
 """
 
 import json
+
 from Z_module import CompactJSONEncoder
 
-
 # load the json file
-with open("englishidioms/src/phrases.json", encoding="UTF-8") as f:
+with open("englishidioms/phrases.json", encoding="UTF-8") as f:
     data = json.load(f)
 
 # create a json string
@@ -97,5 +97,5 @@ for entry in data["dictionary"]:
 
 
 # overwrite the file
-with open("englishidioms/src/phrases.json", "w", encoding="UTF-8") as f:
+with open("englishidioms/phrases.json", "w", encoding="UTF-8") as f:
     json.dump(file, f, indent=2, cls=CompactJSONEncoder, ensure_ascii=False)

@@ -83,7 +83,7 @@ We go through a series of eleven steps to process and refine the data from 'clea
 
 It's important to run these modules in the specified order to create the final version of 'phrases.json,' which is the comprehensive database for data from 'clean-output.docx.' On Windows CMD, you can run them sequentially using this command:
 
-    A_breakitup.py && B_breakitup.py && C_readit.py && D_readit.py && E_tidyup.py && F_tidyup.py && G_asterisk.py && H_hyphenated_words.py && I_getpatterns.py && J_getwordforms.py && K_getexamples.py
+    python A_breakitup.py && python B_breakitup.py && python C_readit.py && python D_readit.py && python E_tidyup.py && python F_tidyup.py && python G_asterisk.py && python H_hyphenated_words.py && python I_getpatterns.py && python J_getwordforms.py && python K_getexamples.py
 
 **3. Core Functionality:**
 

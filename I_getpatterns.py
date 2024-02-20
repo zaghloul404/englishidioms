@@ -20,8 +20,8 @@ Example:
 python I_getpatterns.py
 """
 
-
 import json
+
 from Z_module import CompactJSONEncoder
 
 
@@ -145,7 +145,7 @@ def get_patterns(entry_alt, entry_runs):
 
 
 # load the json file
-with open("englishidioms/src/phrases.json", encoding="UTF-8") as f:
+with open("englishidioms/phrases.json", encoding="UTF-8") as f:
     data = json.load(f)
 
 
@@ -174,5 +174,5 @@ for entry in data["dictionary"]:
 
 
 # save all to phrases.json
-with open("englishidioms/src/phrases.json", "w", encoding="UTF-8") as f:
+with open("englishidioms/phrases.json", "w", encoding="UTF-8") as f:
     json.dump(data, f, indent=2, cls=CompactJSONEncoder, ensure_ascii=False)

@@ -19,9 +19,9 @@ Example:
 python F_tidyup.py
 """
 
-
 import json
 import re
+
 from Z_module import CompactJSONEncoder
 
 
@@ -70,7 +70,7 @@ def cleanup(line_alt, line_runs):
 
 
 # load the json file
-with open("englishidioms/src/phrases.json", encoding="UTF-8") as f:
+with open("englishidioms/phrases.json", encoding="UTF-8") as f:
     data = json.load(f)
 
 for entry in data["dictionary"]:
@@ -97,5 +97,5 @@ for entry in data["dictionary"]:
 
 
 # overwrite the file
-with open("englishidioms/src/phrases.json", "w", encoding="UTF-8") as f:
+with open("englishidioms/phrases.json", "w", encoding="UTF-8") as f:
     json.dump(data, f, indent=2, cls=CompactJSONEncoder, ensure_ascii=False)

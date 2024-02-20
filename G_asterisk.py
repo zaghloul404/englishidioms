@@ -20,8 +20,11 @@ Example:
 python G_tidyup.py
 """
 
+import json
+import re
 
-import json, re, docx
+import docx
+
 from Z_module import CompactJSONEncoder
 
 
@@ -216,7 +219,7 @@ doc = docx.Document("files/clean-output.docx")
 lines = doc.paragraphs
 
 # load the json file
-with open("englishidioms/src/phrases.json", encoding="UTF-8") as f:
+with open("englishidioms/phrases.json", encoding="UTF-8") as f:
     data = json.load(f)
 
 # create a json string
@@ -300,5 +303,5 @@ for entry in data["dictionary"]:
 
 
 # overwrite the file
-with open("englishidioms/src/phrases.json", "w", encoding="UTF-8") as f:
+with open("englishidioms/phrases.json", "w", encoding="UTF-8") as f:
     json.dump(file, f, indent=2, cls=CompactJSONEncoder, ensure_ascii=False)
