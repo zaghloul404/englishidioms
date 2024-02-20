@@ -46,7 +46,7 @@ import pickle
 import docx
 from tqdm import tqdm
 
-from Z_module import copy_docx
+from Z_module import copy_docx, runtype
 
 
 def typically():
@@ -157,6 +157,16 @@ for line_number, line in enumerate(lines):
         and
         # ignore the line if it begins like this: ''be ~; go ~; run ~; turn ~.) _ When did the''
         (not typically())
+        and
+        # ignore the line if it begins with a constant, and the previous line ends with
+        # a bold number for a new definition and the word "and" (e.g 3. and)
+        not (
+            line.runs[0].bold
+            and line.runs[0].font.name == "Formata-Medium"
+            # run index is not a factor here, added 100
+            and runtype(100, lines[line_number - 1].runs[-1]) == "and"
+            and lines[line_number - 1].runs[-2].bold
+        )
         and (
             # if the 1st run in the line is bold and has 'Formata-Medium'
             # then it's probably a beginning of a phrase
@@ -376,7 +386,7 @@ with open("files/ranges.pickle", "wb") as file:
 #     # add a line break after each entry
 #     text_file_2 = text_file_2 + "\n" + "*" * 50
 # # write string to desk
-# with open("files/clean_entries.txt", "w") as myfile:
+# with open("files/clean_entries.txt", "w", encoding="utf-8") as myfile:
 #     myfile.write(text_file_2)
 
 
