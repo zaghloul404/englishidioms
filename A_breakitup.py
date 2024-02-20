@@ -158,13 +158,11 @@ for line_number, line in enumerate(lines):
         # ignore the line if it begins like this: ''be ~; go ~; run ~; turn ~.) _ When did the''
         (not typically())
         and
-        # ignore the line if it begins with a constant, and the previous line ends with
-        # a bold number for a new definition and the word "and" (e.g 3. and)
+        # ignore the line if the previous line ends with a bold number for a new definition
+        # and the word "and" (e.g 3. and)
         not (
-            line.runs[0].bold
-            and line.runs[0].font.name == "Formata-Medium"
             # run index is not a factor here, added 100
-            and runtype(100, lines[line_number - 1].runs[-1]) == "and"
+            runtype(100, lines[line_number - 1].runs[-1]) == "and"
             and lines[line_number - 1].runs[-2].bold
         )
         and (
@@ -320,6 +318,10 @@ to_merge = [
     [(39577, 39578), (39579, 39581)],
     [(39214, 39215), (39216, 39217)],
     [(31413, 31417), (31418, 31421)],
+    [
+        (22537, 22540),
+        (22541, 22547),
+    ],  # "and" not formatted correctly
 ]
 
 # merge and add new ranges to []
@@ -375,19 +377,19 @@ with open("files/ranges.pickle", "wb") as file:
 # save clean_ranges to a text file
 # Note: writing the whole file to a string variable and calling write() once
 # is 16x faster than calling write() 3 times in every iteration
-# print("creating clean_entries.txt")
-# text_file_2 = str()
-# for s, e in tqdm(clean_ranges):
-#     # add range
-#     text_file_2 = text_file_2 + "\n" + f"[{s}, {e}]"
-#     # add entry lines from clean-output.docx
-#     for i in range(s, e + 1):
-#         text_file_2 = text_file_2 + "\n" + lines[i].text
-#     # add a line break after each entry
-#     text_file_2 = text_file_2 + "\n" + "*" * 50
-# # write string to desk
-# with open("files/clean_entries.txt", "w", encoding="utf-8") as myfile:
-#     myfile.write(text_file_2)
+print("creating clean_entries.txt")
+text_file_2 = str()
+for s, e in tqdm(clean_ranges):
+    # add range
+    text_file_2 = text_file_2 + "\n" + f"[{s}, {e}]"
+    # add entry lines from clean-output.docx
+    for i in range(s, e + 1):
+        text_file_2 = text_file_2 + "\n" + lines[i].text
+    # add a line break after each entry
+    text_file_2 = text_file_2 + "\n" + "*" * 50
+# write string to desk
+with open("files/clean_entries.txt", "w", encoding="utf-8") as myfile:
+    myfile.write(text_file_2)
 
 
 # Output File #4 (optional)
