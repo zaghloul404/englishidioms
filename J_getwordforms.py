@@ -1,12 +1,19 @@
 """Generate Word Forms for Dictionary Entries
 
 Description:
-This script processes dictionary entries from 'phrases.json' and generates word forms for each word in the 'runs' lists, except for 'variable' words.
-It utilizes the 'word_forms' Python package to generate all possible forms of English words and saves these forms back into 'phrases.json'.
-The generated word forms enable accurate word identification and tense considerations for idiomatic expressions searches, while optimizing the execution time for search functions in 'L_algorithm.py'.
-Having word forms available in phrases.json while using search functions in 'L_algorithm.py' cuts off 10 seconds from the execution time of 'L_algorithm.py', as opposed to calling the get_word_forms function on the fly with every run to 'L_algorithm.py'.
+This script processes dictionary entries from 'phrases.json' and generates word forms
+for each word in the 'runs' lists, except for 'variable' words.
+It utilizes the 'word_forms' Python package to generate all possible forms of English 
+words and saves these forms back into 'phrases.json'.
+The generated word forms enable accurate word identification and tense considerations 
+for idiomatic expressions searches, while optimizing the execution time for search 
+functions in 'L_algorithm.py'.
+Having word forms available in phrases.json while using search functions in 
+'L_algorithm.py' cuts off 10 seconds from the execution time of 'L_algorithm.py', 
+as opposed to calling the get_word_forms function on the fly with every run to 'L_algorithm.py'.
 
-In addition, this script assigns a unique id number to each entry in 'phrases.json', providing a distinct identifier for each entry, as the 'range' may not be unique.
+In addition, this script assigns a unique id number to each entry in 'phrases.json', 
+providing a distinct identifier for each entry, as the 'range' may not be unique.
 
 Input:
 - phrases.json
@@ -35,8 +42,10 @@ def get_forms(word):
     """
     Get Word Forms for a Given Word
 
-    This function takes an English word as input and utilizes the 'word_forms' package to generate various forms and tenses of the word.
-    It returns these word forms as a list, ensuring that the original word is included in the list, even if no additional word forms are available.
+    This function takes an English word as input and utilizes the 'word_forms' package to generate
+    various forms and tenses of the word.
+    It returns these word forms as a list, ensuring that the original word is included in the list,
+    even if no additional word forms are available.
 
     Args:
     - word (str): The English word for which to generate word forms.
@@ -66,9 +75,9 @@ with open("englishidioms/phrases.json", encoding="UTF-8") as f:
     data = json.load(f)
 
 for id_number, entry in enumerate(data["dictionary"]):
-    word_forms = (
-        []
-    )  # list of lists - len(word_forms) equals to len(entry["runs"]) & len() of each list is equal to word count for each run
+    # list of lists - len(word_forms) equals to len(entry["runs"])
+    # & len() of each list is equal to word count for each run
+    word_forms = []
 
     for a, r in zip(entry["alt"], entry["runs"]):
         if a != "variable":

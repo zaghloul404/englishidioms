@@ -1,32 +1,50 @@
 """
 L_algorithm.py Idiomatic Expression Matcher
 
-This script is designed to find idiomatic expressions within English sentences by comparing them to a dictionary of phrases stored in 'phrases.json'.
-It consists of two main functions, 'get_potential_matches()' and 'look_closer()', which work together to identify potential dictionary entries that match a given English sentence and then filter and rank those potential matches to find idiomatic expression matches.
+This script is designed to find idiomatic expressions within English sentences by comparing them
+to a dictionary of phrases stored in 'phrases.json'.
+It consists of two main functions, 'get_potential_matches()' and 'look_closer()', 
+which work together to identify potential dictionary entries that match a given English sentence
+and then filter and rank those potential matches to find idiomatic expression matches.
 
 'get_potential_matches()' Function:
 -------------------------------------
-This function aims to efficiently narrow down the search for potential dictionary entries that match an input English sentence. It iterates through all entries in 'phrases.json' and checks if the sentence contains all the "constant" elements present in a dictionary entry. Various strategies are employed, including considering multi-word constants, word forms, and lemmatization, to enhance matching capabilities.
+This function aims to efficiently narrow down the search for potential dictionary entries that match
+an input English sentence. It iterates through all entries in 'phrases.json' and checks if the 
+sentence contains all the "constant" elements present in a dictionary entry. 
+Various strategies are employed, including considering multi-word constants, word forms, 
+and lemmatization, to enhance matching capabilities.
 
 Args:
-    sentence (str): The English sentence to search for potential matches within the dictionary entries.
+    sentence (str): The English sentence to search for potential matches within the 
+    dictionary entries.
 
 Returns:
-    list: A list of indices corresponding to potential matching entries in 'phrases.json'. This function significantly reduces the number of entries to be analyzed in the subsequent matching process.
+    list: A list of indices corresponding to potential matching entries in 'phrases.json'. 
+    This function significantly reduces the number of entries to be analyzed in the subsequent 
+    matching process.
 
 'look_closer()' Function:
 --------------------------
-This function refines the list of potential matches obtained from 'get_potential_matches()' to identify idiomatic expressions in the input sentence. It considers exact word matches, lemmatized forms, and patterns to determine the presence of idiomatic expressions. The resulting matches are filtered and sorted based on the number of matching words and word span.
+This function refines the list of potential matches obtained from 'get_potential_matches()' 
+to identify idiomatic expressions in the input sentence. 
+It considers exact word matches, lemmatized forms, and patterns to determine the presence of 
+idiomatic expressions. 
+The resulting matches are filtered and sorted based on the number of matching words and word span.
 
 Args:
-    potential_matches (list): A list of potential matches returned by the 'get_potential_matches()' function.
+    potential_matches (list): A list of potential matches returned by the 
+    'get_potential_matches()' function.
     sentence (str): The English sentence to search for idiomatic expressions.
 
 Returns:
-    list: A list of filtered and sorted idiomatic expression matches. Each item in the list consists of the dictionary entry, the number of matching words, and the matched word span.
+    list: A list of filtered and sorted idiomatic expression matches. 
+    Each item in the list consists of the dictionary entry, the number of matching words, 
+    and the matched word span.
 
 Note:
-The script includes other auxiliary functions such as 'get_match_span()' and 'is_it_sorted()' for various calculations and checks.
+The script includes other auxiliary functions such as 'get_match_span()' and 'is_it_sorted()'
+for various calculations and checks.
 
 Example Usage:
 --------------
@@ -42,6 +60,7 @@ import itertools
 import json
 import os
 import re
+from pprint import pprint
 
 import nltk
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -54,8 +73,9 @@ json_path = os.path.join(package_dir, "phrases.json")
 with open(json_path, "r", encoding="UTF-8") as file:
     data = json.load(file)
 
-# manually point nltk to my top level nltk_data folder that includes wordnet - https://www.nltk.org/data.html
-nltk_data_dir = os.path.join(os.path.dirname(__file__), "nltk_data")
+# manually point nltk to my top level nltk_data folder that includes wordnet
+# https://www.nltk.org/data.html
+nltk_data_dir = os.path.join(package_dir, "nltk_data")
 nltk.data.path.append(nltk_data_dir)
 
 
@@ -63,7 +83,8 @@ def get_match_span(tuple_list):
     """
     Extract the first and last numbers from a list of tuples.
 
-    This function takes a list of tuples and returns a tuple containing the first and last numbers from the combined list of elements in the tuples.
+    This function takes a list of tuples and returns a tuple containing the first and last
+    numbers from the combined list of elements in the tuples.
 
     Args:
     tuple_list (list of tuple): A list of tuples, where each tuple represents a pair of numbers.
@@ -87,7 +108,9 @@ def is_it_sorted(tuple_list):
     """
     Check if the integers in a list of tuples are sorted in ascending order.
 
-    This function takes a list of tuples and checks whether all the integer values within the list, when combined, are sorted in ascending order. It returns True if the integers are sorted, and False otherwise.
+    This function takes a list of tuples and checks whether all the integer values within the list,
+    when combined, are sorted in ascending order.
+    It returns True if the integers are sorted, and False otherwise.
 
     Args:
     tuple_list (list of tuple): A list of tuples, where each tuple contains integer values.
@@ -106,15 +129,16 @@ def is_it_sorted(tuple_list):
 
     if sorted(flat_list) == flat_list:
         return True
-    else:
-        return False
+
+    return False
 
 
 def longest(l):
     """
     Find the length of the longest list in a nested list structure.
 
-    This function takes a nested list as an argument and returns the length of the longest list contained within it. It recursively explores the structure to identify the maximum length.
+    This function takes a nested list as an argument and returns the length of the longest list
+    contained within it. It recursively explores the structure to identify the maximum length.
 
     Args:
     l (list): A nested list structure.
@@ -142,17 +166,22 @@ def longest(l):
     )
 
 
-def get_potential_matches(sentence):
+def get_potential_matches(sentence, sentence_lemma):
     """
     Find potential dictionary entries that match a given English sentence.
 
-    This function takes a given 'sentence' as input and examines it against all entries in 'phrases.json'.
-    Its primary purpose is to expedite the search process by filtering potential matches before performing more detailed analysis.
-    The function iterates through the entries and checks if all 'constant' elements in an entry exist in the sentence.
-    If all 'constant' elements match, the entry is considered a potential match and is added to the result.
+    This function takes a given 'sentence' as input and examines it against all entries
+    in 'phrases.json'.
+    Its primary purpose is to expedite the search process by filtering potential matches
+    before performing more detailed analysis.
+    The function iterates through the entries and checks if all 'constant' elements in an entry
+    exist in the sentence.
+    If all 'constant' elements match, the entry is considered a potential match and is added
+    to the result.
 
     Args:
-    sentence (str): The English sentence to search for potential matches within the dictionary entries.
+    sentence (str): The English sentence to search for potential matches within the
+    dictionary entries.
 
     Returns:
     list: A list of indices corresponding to potential matching entries in 'phrases.json.'
@@ -165,8 +194,12 @@ def get_potential_matches(sentence):
     [21, 22, 1263, ...] # A list of entry indices representing potential matches.
 
     Note:
-    This function significantly reduces the number of entries that need to be analyzed in the subsequent matching process, making the search more efficient and improving the overall performance of the search process.
-    The function employs various strategies, such as considering multi-word constants, word forms, and lemmatization to enhance its matching capabilities, ensuring accurate identification of potential matches.
+    This function significantly reduces the number of entries that need to be analyzed in the
+    subsequent matching process, making the search more efficient and improving the overall
+    performance of the search process.
+    The function employs various strategies, such as considering multi-word constants,
+    word forms, and lemmatization to enhance its matching capabilities, ensuring accurate
+    identification of potential matches.
     """
 
     potential_matches = []
@@ -195,18 +228,14 @@ def get_potential_matches(sentence):
                     if m is not None:
                         constant_match_count += 1
                     else:
-                        # let's take another look
-                        # let's generate a lemma for each word in the sentence, and see if any of those words exist in the word forms list
-                        sentence_lemma = [
-                            WordNetLemmatizer().lemmatize(word, "v")
-                            for word in sentence.split()
-                        ]
-
+                        # does any of the words from the word form list exist
+                        # in the lemmatized sentence?
                         if any(w in wf[0] for w in sentence_lemma):
                             constant_match_count += 1
 
                 elif len(r.split()) > 1:  # a multiple word constant
-                    # break down the constant to words and see if all those words (or their forms) exist in the sentence
+                    # break down the constant to words and see if all those words
+                    # (or their forms) exist in the sentence
 
                     word_match_count = 0
 
@@ -222,11 +251,6 @@ def get_potential_matches(sentence):
                             if m is not None:
                                 word_match_count += 1
                             else:
-                                sentence_lemma = [
-                                    WordNetLemmatizer().lemmatize(word, "v")
-                                    for word in sentence.split()
-                                ]
-
                                 if any(w in wf[c] for w in sentence_lemma):
                                     word_match_count += 1
 
@@ -241,24 +265,34 @@ def get_potential_matches(sentence):
     return potential_matches
 
 
-def look_closer(potential_matches, sentence):
+def look_closer(potential_matches, sentence, sentence_lemma):
     """
-    Filters potential matches and provides a list of idiomatic expression matches in a given English sentence.
+    Filters potential matches and provides a list of idiomatic expression matches
+    in a given English sentence.
 
-    This function refines a list of potential matches obtained from the `get_potential_matches()` function by examining various factors, including exact word matches, lemmatized forms, and patterns, to determine the presence of idiomatic expressions in the input sentence. The workflow consists of the following steps:
+    This function refines a list of potential matches obtained from the `get_potential_matches()`
+    function by examining various factors, including exact word matches, lemmatized forms,
+    and patterns, to determine the presence of idiomatic expressions in the input sentence.
+    The workflow consists of the following steps:
 
-    1. It considers all "article," "verb," "o-constant," and "constant" elements in each potential match and searches for their exact word, lemmatized form, or any form in the input sentence.
-    2. It generates patterns from the findings and compares these patterns to those in the dictionary entry.
-    3. It checks that all word matches in the sentence appear in the same order as in the dictionary entry.
-    4. It ensures that matching words are not too far apart in the sentence, with a maximum allowed distance of 3 words between matched words to avoid incorrect matches in long sentences.
-    5. The function returns all matches sorted in descending order, with the entry that has the highest number of matching words listed first.
+    1. It considers all "article," "verb," "o-constant," and "constant" elements in each potential
+       match and searches for their exact word, lemmatized form, or any form in the input sentence.
+    2. It generates patterns from the findings and compares these patterns to those in the
+       dictionary entry.
+    3. It checks that all word matches in the sentence appear in the same order as in the
+       dictionary entry.
+    4. It ensures that matching words are not too far apart in the sentence, with a maximum allowed
+       distance of 3 words between matched words to avoid incorrect matches in long sentences.
+    5. The function returns all matches sorted in descending order, with the entry that has the
+       highest number of matching words listed first.
 
     Args:
-    potential_matches (list): A list of potential matches returned by the get_potential_matches() function.
+    potential_matches (list): A list of potential matches returned by get_potential_matches().
     sentence (str): The English sentence to search for idiomatic expressions.
 
     Returns:
-    list: A list of filtered and sorted idiomatic expression matches, with each item consisting of the dictionary entry, the number of matching words, and the matched word span.
+    list: A list of filtered and sorted idiomatic expression matches, with each item consisting
+    of the dictionary entry, the number of matching words, and the matched word span.
 
     Example:
     Given a list of potential matches and an input sentence:
@@ -273,35 +307,43 @@ def look_closer(potential_matches, sentence):
     ]
     """
     # Notes:
-    # 1: using try,except in 'for index, (match, span) in enumerate(zip(m,s)):' to avoid the following Traceback "indexError: list index out of range"
-    #   this is a rare situation, when there are more words/matches in a sentence that the number of dictionaries in [record]
+    # 1: using try,except in 'for index, (match, span) in enumerate(zip(m,s)):'
+    # to avoid the following Traceback "indexError: list index out of range"
+    # this is a rare situation, when there are more words/matches in a sentence that the
+    # number of dictionaries in [record]
 
-    # 2: [refined_matches] always has fewer matches than potential_matches, but the problem is that there are lots of entries in phrases.json that can
-    #   be triggered by a single word in a sentence - for example: the word "want" will always trigger range (84897,84900)
-    #   to narrow down results a bit more, i'm organizing matches in [refined_matches] in descending order.
-    #   i'll put entries with the highest number of matches 1st - hopefully i can always pick up a match from the 1st 3 suggestions
+    # 2: [refined_matches] always has fewer matches than potential_matches,
+    # but the problem is that there are lots of entries in phrases.json that can
+    # be triggered by a single word in a sentence - for example: the word "want" will always
+    # trigger range (84897,84900)
+    # to narrow down results a bit more, i'm organizing matches in [refined_matches]
+    # in descending order.
+    # i'll put entries with the highest number of matches 1st
+    # - hopefully i can always pick up a match from the 1st 3 suggestions
 
     # here is a list of entries to examine
     dictionary = []
     for item in potential_matches:
         dictionary.append(data["dictionary"][item])
 
-    # pprint(dictionary)
+    with open("potential_matches.txt", "w", encoding="utf-8") as f:
+        pprint(dictionary, f)
 
-    # record = [[{'i': 0, 'match': [], 'span': [], 'distance': 0}, {'i': 0, 'match': [], 'span': [], 'distance': 0}], [{'i': 1, 'match': ['back'], 'span': [(37, 41), 'distance': 0]}, {'i': 1, 'match': [], 'span': [], 'distance': 0}]]
+    # record = [[{'i': 0, 'match': [], 'span': [], 'distance': 0},
+    # {'i': 0, 'match': [], 'span': [], 'distance': 0}],
+    # [{'i': 1, 'match': ['back'], 'span': [(37, 41), 'distance': 0]},
+    # {'i': 1, 'match': [], 'span': [], 'distance': 0}]]
     # [record] & [dictionary] are always of the same length
 
     record = []  # list of dict()
 
     # loop through all potential_matches in [dictionary]
-    for i in range(len(dictionary)):
+    for i, d in enumerate(dictionary):
         record.insert(i, [])
-        for _ in range(longest(dictionary[i]["word_forms"]) + 2):
+        for _ in range(longest(d["word_forms"]) + 2):
             record[i].append({"i": i, "match": [], "span": [], "distance": 0})
 
-        for a, r, wf in zip(
-            dictionary[i]["alt"], dictionary[i]["runs"], dictionary[i]["word_forms"]
-        ):
+        for a, r, wf in zip(d["alt"], d["runs"], d["word_forms"]):
             if (
                 a in ["article", "verb", "o-constant", "constant"]
                 and len(r.split()) == 1
@@ -514,8 +556,27 @@ def look_closer(potential_matches, sentence):
 def find_idioms(
     sentence, limit=10, html=False, span=False, entry_range=False, entry_id=False
 ):
-    potential_matches = get_potential_matches(sentence)
-    lc = look_closer(potential_matches, sentence)
+
+    # Tokenize the sentence into words
+    words = nltk.word_tokenize(sentence.lower())
+
+    # Tag the words with their respective parts of speech
+    pos_tags = nltk.pos_tag(words)
+    # sample output: [('You', 'PRP'), ('omitted', 'VBD'), ('Carol', 'NNP'),
+    # ('from', 'IN'), ('the', 'DT'), ('list', 'NN'), ('.', '.')]
+
+    # Lemmatize each word based on its POS tag
+    sentence_lemma = [
+        (
+            WordNetLemmatizer().lemmatize(word, pos[0].lower())
+            if pos[0].lower() in ["a", "n", "v"]
+            else WordNetLemmatizer().lemmatize(word)
+        )
+        for word, pos in pos_tags
+    ]
+
+    potential_matches = get_potential_matches(sentence.lower(), sentence_lemma)
+    lc = look_closer(potential_matches, sentence.lower(), sentence_lemma)
 
     matches = list(
         k for k, _ in itertools.groupby([(item[0], item[2]) for item in lc[:limit]])

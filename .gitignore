@@ -8,6 +8,7 @@ dist/
 englishidioms.egg-info/
 .venv/
 englishidioms/__pycache__/
+englishidioms/potential_matches.txt
 delete.py
 .DS_Store
 API_tokens.txt

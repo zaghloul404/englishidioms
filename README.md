@@ -95,6 +95,12 @@ The heart of the project is the 'L_algorithm.py' module, which is located in the
 
 - Minimized Dependencies: The 'L_algorithm.py' and 'phrases.json' combination requires fewer external dependencies compared to the entire package. This simplifies the installation process for end-users, reducing the need to install additional libraries and requirements that may not be necessary for their specific usage.
 
+The 'englishidioms' directory also includes three necessary NLTK resources needed in order to run 'L_algorithm.py'
+
+1. punkt: This resource is a tokenizer model. It's used for tokenization, which is the process of splitting text into individual words or punctuation marks. The nltk.word_tokenize() function, relies on this tokenizer model to split sentences into words.
+2. averaged_perceptron_tagger: This resource is a part-of-speech (POS) tagger model. It's used to assign POS tags to each word in a sentence. The nltk.pos_tag() function, utilizes this tagger model to tag words with their respective POS.
+3. wordnet: WordNet is a lexical database of English. It's used for the WordNetLemmatizer() class from NLTK's WordNet module to lemmatize words. The lemmatization process involves reducing words to their base or dictionary form (known as lemma).
+
 By adopting this streamlined approach, we ensure that users can quickly and easily access the core functionality of the package without any unnecessary overhead.
 
 **4. Checking and Testing:**

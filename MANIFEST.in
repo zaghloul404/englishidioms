@@ -1,2 +1,2 @@
 include englishidioms/phrases.json
-include englishidioms/nltk_data/corpora/wordnet/*
+recursive-include englishidioms/nltk_data *
