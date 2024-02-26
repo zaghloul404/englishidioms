@@ -59,8 +59,8 @@ print(idiomatic_matches)
 import itertools
 import json
 import os
+import pprint
 import re
-from pprint import pprint
 
 import nltk
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -99,6 +99,7 @@ def get_match_span(tuple_list):
     Expected Output:
     Resulting Span: (3, 30)
     """
+
     flat_list = [item for pair in tuple_list for item in pair]
 
     return flat_list[0], flat_list[-1]
@@ -164,6 +165,115 @@ def longest(l):
         + [len(subl) for subl in l if isinstance(subl, list)]
         + [longest(subl) for subl in l]
     )
+
+
+def max_words_between(sentence, words, spans):
+    """Find the maximum number of words between adjacent pairs of words in a sentence.
+
+    Args:
+        sentence (str): The input sentence.
+        words (list of str): List of words in the sentence.
+        spans (list of tuple): List of tuples representing spans of each word in the sentence.
+
+    Returns:
+        int: The maximum number of words between adjacent pairs of words.
+
+    Example:
+        >>> sentence = "This is a sample sentence."
+        >>> words = ["This", "is", "a", "sentence."]
+        >>> spans = [(0, 4), (5, 7), (8, 9), (17, 26)]
+        >>> max_words_between(sentence, words, spans)
+        1
+    """
+    # Initialize max_words to zero
+    max_words = 0
+
+    # Iterate through pairs of adjacent words
+    for i in range(len(words) - 1):
+        word1 = words[i]
+        word2 = words[i + 1]
+
+        # Get the span of each word
+        span1 = spans[i]
+        span2 = spans[i + 1]
+
+        # Calculate the number of words between the two spans
+        words_between = len(sentence[span1[1] + 1 : span2[0]].split())
+
+        # Update max_words if necessary
+        if words_between > max_words:
+            max_words = words_between
+
+    return max_words
+
+
+def generate_combinations_with_constants(input_list):
+    """
+    Generate all possible combinations for items in a list where some items have variants/options
+    and some are constants.
+
+    Args:
+        input_list (list): A list containing items. Some items may be lists representing
+        variants/options, while others are constants.
+
+    Returns:
+        list: A list containing all possible combinations of items, with constants fixed in
+        their respective positions.
+
+    Example:
+        >>> input_list = [["a1", "a2", "a3", "a4"], "b", ["c1", "c2", "c3"], "d", ["e1", "e2"]]
+        >>> generate_combinations_with_constants(input_list)
+        [('a1', 'b', 'c1', 'd', 'e1'),
+        ('a1', 'b', 'c1', 'd', 'e2'),
+        ('a1', 'b', 'c2', 'd', 'e1'),
+        ('a1', 'b', 'c2', 'd', 'e2'),
+        ('a1', 'b', 'c3', 'd', 'e1'),
+        ('a1', 'b', 'c3', 'd', 'e2'),
+        ('a2', 'b', 'c1', 'd', 'e1'),
+        ('a2', 'b', 'c1', 'd', 'e2'),
+        ('a2', 'b', 'c2', 'd', 'e1'),
+        ('a2', 'b', 'c2', 'd', 'e2'),
+        ('a2', 'b', 'c3', 'd', 'e1'),
+        ('a2', 'b', 'c3', 'd', 'e2'),
+        ('a3', 'b', 'c1', 'd', 'e1'),
+        ('a3', 'b', 'c1', 'd', 'e2'),
+        ('a3', 'b', 'c2', 'd', 'e1'),
+        ('a3', 'b', 'c2', 'd', 'e2'),
+        ('a3', 'b', 'c3', 'd', 'e1'),
+        ('a3', 'b', 'c3', 'd', 'e2'),
+        ('a4', 'b', 'c1', 'd', 'e1'),
+        ('a4', 'b', 'c1', 'd', 'e2'),
+        ('a4', 'b', 'c2', 'd', 'e1'),
+        ('a4', 'b', 'c2', 'd', 'e2'),
+        ('a4', 'b', 'c3', 'd', 'e1'),
+        ('a4', 'b', 'c3', 'd', 'e2')]
+
+    note: words as well in case the input_list included only constants
+    >>> input_list = ["a1", "a2", "a3", "a4", "b"]
+    >>> generate_combinations_with_constants(input_list)
+    [('a1', 'a2', 'a3', 'a4', 'b')]
+    """
+    # Extract variant items and constant items
+    variant_items = [item for item in input_list if isinstance(item, list)]
+    constant_items = [item for item in input_list if not isinstance(item, list)]
+
+    # Generate all possible combinations for variant items
+    variant_combinations = itertools.product(*variant_items)
+
+    # Combine variant combinations with constant items
+    result = []
+    for variant_combination in variant_combinations:
+        combined = []
+        variant_index = 0
+        for item in input_list:
+            if isinstance(item, list):
+                combined.append(variant_combination[variant_index])
+                variant_index += 1
+            else:
+                combined.append(item)
+        result.append(tuple(combined))
+
+    return result
 
 
 def get_potential_matches(sentence, sentence_lemma):
@@ -307,12 +417,7 @@ def look_closer(potential_matches, sentence, sentence_lemma):
     ]
     """
     # Notes:
-    # 1: using try,except in 'for index, (match, span) in enumerate(zip(m,s)):'
-    # to avoid the following Traceback "indexError: list index out of range"
-    # this is a rare situation, when there are more words/matches in a sentence that the
-    # number of dictionaries in [record]
-
-    # 2: [refined_matches] always has fewer matches than potential_matches,
+    # [refined_matches] always has fewer matches than potential_matches,
     # but the problem is that there are lots of entries in phrases.json that can
     # be triggered by a single word in a sentence - for example: the word "want" will always
     # trigger range (84897,84900)
@@ -326,22 +431,12 @@ def look_closer(potential_matches, sentence, sentence_lemma):
     for item in potential_matches:
         dictionary.append(data["dictionary"][item])
 
-    with open("potential_matches.txt", "w", encoding="utf-8") as f:
-        pprint(dictionary, f)
-
-    # record = [[{'i': 0, 'match': [], 'span': [], 'distance': 0},
-    # {'i': 0, 'match': [], 'span': [], 'distance': 0}],
-    # [{'i': 1, 'match': ['back'], 'span': [(37, 41), 'distance': 0]},
-    # {'i': 1, 'match': [], 'span': [], 'distance': 0}]]
-    # [record] & [dictionary] are always of the same length
-
-    record = []  # list of dict()
+    matches = []
 
     # loop through all potential_matches in [dictionary]
-    for i, d in enumerate(dictionary):
-        record.insert(i, [])
-        for _ in range(longest(d["word_forms"]) + 2):
-            record[i].append({"i": i, "match": [], "span": [], "distance": 0})
+    for d in dictionary:
+
+        record = []
 
         for a, r, wf in zip(d["alt"], d["runs"], d["word_forms"]):
             if (
@@ -350,75 +445,32 @@ def look_closer(potential_matches, sentence, sentence_lemma):
             ):
                 p = re.compile(rf"\b({'|'.join(wf[0])})\b", re.IGNORECASE)
 
-                m = p.findall(
+                match = p.findall(
                     sentence
                 )  # returns a list of all matches, or empty list in case of no match
 
-                s = [
+                span = [
                     m.span() for m in p.finditer(sentence)
                 ]  # returns a list of all m.span, or empty list in case of no match
 
                 # update the record
-                if len(m) == 1 and len(s) == 1:
-                    for ddict in record[i]:
-                        ddict["match"].append(r)
-                        ddict["span"].append(s[0])
-                elif len(m) > 1 and len(s) > 1:
-                    for index, (match, span) in enumerate(zip(m, s)):
-                        try:
-                            # ['the', 	'blind', 	'leading', 	'the', 		'blind']
-                            # multiple matches with different spans can throw off the algorithm
-                            # in case the match&span were added already, try adding the same match but with a different span
-                            if (
-                                r in record[i][index]["match"]
-                                and span in record[i][index]["span"]
-                            ):
-                                for i_match, i_span in zip(m, s):
-                                    if match == i_match and span != i_span:
-                                        record[i][index]["match"].append(r)
-                                        record[i][index]["span"].append(i_span)
-                            else:
-                                record[i][index]["match"].append(r)
-                                record[i][index]["span"].append(span)
-
-                        except:
-                            pass
+                if len(match) > 1 and len(span) > 1:
+                    record.append([(r, s) for m, s in zip(match, span)])
+                elif match and span:
+                    record.append((r, span[0]))
                 else:
-                    # let's generate a lemma for each word in the sentence, and see if any of those words exist in the word forms list
-                    sentence_lemma = [
-                        WordNetLemmatizer().lemmatize(word, "v")
-                        for word in sentence.split()
-                    ]
+                    # let's see if any word forms exist in the lemmatized sentence
                     sentence_lemma_string = " ".join(sentence_lemma)
 
                     p = re.compile(rf"\b({'|'.join(wf[0])})\b", re.IGNORECASE)
-                    m = p.findall(sentence_lemma_string)
-                    s = [m.span() for m in p.finditer(sentence_lemma_string)]
+                    match = p.findall(sentence_lemma_string)
+                    span = [m.span() for m in p.finditer(sentence_lemma_string)]
 
-                    # add the values to the dictionary inside record
-                    if len(m) == 1 and len(s) == 1:
-                        for ddict in record[i]:
-                            ddict["match"].append(r)
-                            ddict["span"].append(s[0])
-                    elif len(m) > 1 and len(s) > 1:
-                        for index, (match, span) in enumerate(zip(m, s)):
-                            try:
-                                # record[i][index]['match'].append(r)
-                                # record[i][index]['span'].append(span)
-
-                                if (
-                                    r in record[i][index]["match"]
-                                    and span in record[i][index]["span"]
-                                ):
-                                    for i_match, i_span in zip(m, s):
-                                        if match == i_match and span != i_span:
-                                            record[i][index]["match"].append(r)
-                                            record[i][index]["span"].append(i_span)
-                                else:
-                                    record[i][index]["match"].append(r)
-                                    record[i][index]["span"].append(span)
-                            except:
-                                pass
+                    # update the record
+                    if len(match) > 1 and len(span) > 1:
+                        record.append([(r, s) for m, s in zip(match, span)])
+                    elif match and span:
+                        record.append((r, span[0]))
 
             elif (
                 a in ["article", "verb", "o-constant", "constant"]
@@ -427,128 +479,48 @@ def look_closer(potential_matches, sentence, sentence_lemma):
                 for c, w in enumerate(r.split()):
                     p = re.compile(rf"\b({'|'.join(wf[c])})\b", re.IGNORECASE)
 
-                    m = p.findall(sentence)
+                    match = p.findall(sentence)
 
-                    s = [m.span() for m in p.finditer(sentence)]
+                    span = [m.span() for m in p.finditer(sentence)]
 
                     # add the values to the dictionary inside record
-                    if len(m) == 1 and len(s) == 1:
-                        for ddict in record[i]:
-                            ddict["match"].append(w)
-                            ddict["span"].append(s[0])
-                    elif len(m) > 1 and len(s) > 1:
-                        for index, (match, span) in enumerate(zip(m, s)):
-                            try:
-                                # record[i][index]['match'].append(w)
-                                # record[i][index]['span'].append(span)
-
-                                if (
-                                    w in record[i][index]["match"]
-                                    and span in record[i][index]["span"]
-                                ):
-                                    for i_match, i_span in zip(m, s):
-                                        if match == i_match and span != i_span:
-                                            record[i][index]["match"].append(w)
-                                            record[i][index]["span"].append(i_span)
-                                else:
-                                    record[i][index]["match"].append(w)
-                                    record[i][index]["span"].append(span)
-                            except:
-                                pass
+                    if len(match) > 1 and len(span) > 1:
+                        record.append([(w, s) for m, s in zip(match, span)])
+                    elif match and span:
+                        record.append((w, span[0]))
                     else:
-                        # let's generate a lemma for each word in the sentance, and see if any of those words exist in the word forms list
-                        sentence_lemma = [
-                            WordNetLemmatizer().lemmatize(word, "v")
-                            for word in sentence.split()
-                        ]
                         sentence_lemma_string = " ".join(sentence_lemma)
 
                         p = re.compile(rf"\b({'|'.join(wf[c])})\b", re.IGNORECASE)
-                        m = p.findall(sentence_lemma_string)
-                        s = [m.span() for m in p.finditer(sentence_lemma_string)]
+                        match = p.findall(sentence_lemma_string)
+                        span = [m.span() for m in p.finditer(sentence_lemma_string)]
 
-                        # add the values to the dictionary inside record
-                        if len(m) == 1 and len(s) == 1:
-                            for ddict in record[i]:
-                                ddict["match"].append(w)
-                                ddict["span"].append(s[0])
-                        elif len(m) > 1 and len(s) > 1:
-                            for index, (match, span) in enumerate(zip(m, s)):
-                                try:
-                                    # record[i][index]['match'].append(w)
-                                    # record[i][index]['span'].append(span)
+                        # update the record
+                        if len(match) > 1 and len(span) > 1:
+                            record.append([(w, s) for m, s in zip(match, span)])
+                        elif match and span:
+                            record.append((w, span[0]))
 
-                                    if (
-                                        w in record[i][index]["match"]
-                                        and span in record[i][index]["span"]
-                                    ):
-                                        for i_match, i_span in zip(m, s):
-                                            if match == i_match and span != i_span:
-                                                record[i][index]["match"].append(w)
-                                                record[i][index]["span"].append(i_span)
-                                    else:
-                                        record[i][index]["match"].append(w)
-                                        record[i][index]["span"].append(span)
-                                except:
-                                    pass
+        combinations = generate_combinations_with_constants(record)
 
-    # calculate the distance (how many words are there) between each word in [match]
-    # I'm going to set the maximum distance to 3 to avoid picking up bad suggestions in long sentences - as long sentences are more prone to produce bad matches
-    for r in record:
-        for ddict in r:
-            if len(ddict["match"]) == 0 or len(ddict["match"]) == 1:
-                ddict["distance"] = 0
-                continue
+        for combo in combinations:
+            words = [tupl[0] for tupl in combo]
+            spans = [tupl[1] for tupl in combo]
 
-            distance = []
-
-            for i, (m, s) in enumerate(zip(ddict["match"], ddict["span"])):
-                if len(ddict["match"]) == i + 1:
-                    break  # final iteration
-
-                in_between_span = sentence[s[-1] : ddict["span"][i + 1][0]]
-                distance.append(len(in_between_span.strip().split()))
-
-            ddict["distance"] = (
-                0
-                if max(distance) == 0
-                else (
-                    max(distance)
-                    if max(distance) > 3
-                    else sum(distance) / len(distance)
-                )
-            )
-
-    # pprint(record)
-
-    # loop through the dictionaries in [record], and see if we have a matching pattern and span is sorted
-    matches = []
-    for i in range(len(dictionary)):
-        for r in record[i]:
+            # lets check if we have a match
             if (
-                len(r["match"]) != 0
-                and len(r["span"]) != 0
-                and (" ".join(r["match"]) in dictionary[i]["patterns"])
-                and is_it_sorted(r["span"])
-                and r["distance"] <= 3.0
+                words
+                and spans
+                and " ".join(words) in d["patterns"]
+                and is_it_sorted(spans)
+                and max_words_between(sentence, words, spans) <= 3
             ):
-                # matches.append((dictionary[i], len(r['match'])))
-                matches.append(
-                    (dictionary[i], len(r["match"]), get_match_span(r["span"]))
-                )
-
-                # print(get_match_span(r['span']))
-
-                break  # in order not to add duplicates to [matches]
-
-    # print(len(matches))
-    # pprint(matches)
+                matches.append((d, len(words), get_match_span(spans)))
+                break
 
     # now, lets sort matches in descending order, highest number of matches 1st.
     # https://stackoverflow.com/questions/10695139/sort-a-list-of-tuples-by-2nd-item-integer-value
     sorted_refined_matches = sorted(matches, key=lambda x: x[1], reverse=True)
-
-    # pprint(sorted_refined_matches)
 
     return sorted_refined_matches
 
@@ -582,9 +554,9 @@ def find_idioms(
         k for k, _ in itertools.groupby([(item[0], item[2]) for item in lc[:limit]])
     )
 
-    output = list()
+    output = []
     for m in matches:
-        tmp = dict()
+        tmp = {}
         if html:
             tmp.update(
                 {

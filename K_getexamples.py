@@ -1,12 +1,17 @@
 """Extract Examples from 'clean-output.docx'
 
 Description:
-This script is designed to parse dictionary entries from the 'clean-output.docx' document, extracting and saving the examples contained within each entry.
-It takes 'ranges.pickle' and 'clean-output.docx' as input and generates 'examples.txt' (optional) and 'examples.pickle' as output.
+This script is designed to parse dictionary entries from the 'clean-output.docx' document, 
+extracting and saving the examples contained within each entry.
+It takes 'ranges.pickle' and 'clean-output.docx' as input and generates 'examples.txt' (optional) 
+and 'examples.pickle' as output.
 
-The process involves iterating through all dictionary entries as defined by the provided entry ranges in 'ranges.pickle'.
-For each entry, it gathers the associated text from the document and uses regular expressions to identify and extract example sentences, saving both the examples and their corresponding ranges.
-The script offers two output formats: a human-readable 'examples.txt' file and a serialized 'examples.pickle' file.
+The process involves iterating through all dictionary entries as defined by the provided 
+entry ranges in 'ranges.pickle'.
+For each entry, it gathers the associated text from the document and uses regular expressions 
+to identify and extract example sentences, saving both the examples and their corresponding ranges.
+The script offers two output formats: a human-readable 'examples.txt' file and a serialized 
+'examples.pickle' file.
 
 Input:
 - ranges.pickle
@@ -28,7 +33,9 @@ python K_getexamples.py
 In total, 41,259 examples were captured by this script.
 """
 
-import docx, pickle, re
+import docx
+import pickle
+import re
 
 
 doc = docx.Document("files/clean-output.docx")
@@ -37,9 +44,9 @@ lines = doc.paragraphs
 with open("files/ranges.pickle", "rb") as file:
     ranges = pickle.load(file)
 
-er = (
-    []
-)  # a list that contain examples and their associated range [[[range], [examples]], [[range], [examples]], [[range], [examples]]]
+# a list that contain examples and their associated range
+# [[[range], [examples]], [[range], [examples]], [[range], [examples]]]
+er = []
 
 for s, e in ranges:
     entry_text = str()

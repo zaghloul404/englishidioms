@@ -1,18 +1,26 @@
 """ Optimization Experiment Script
 
-This script allows you to experiment with different removal amounts of incorrect entries in the 'phrases.json' file to enhance the accuracy of a search algorithm.
+This script allows you to experiment with different removal amounts of incorrect entries 
+in the 'phrases.json' file to enhance the accuracy of a search algorithm.
 It provides a dynamic approach to determine the optimal balance for improved search results.
 
 The script offers the following functionalities:
 1. Experiment with Removal Amount:
-   - You can specify the number of incorrect entries to remove and evaluate the impact on search accuracy.
-   - The script calculates the most frequently occurring incorrect entries and their effect on the accuracy of search results based on the latest validation data.
-   - It provides information about the results before and after the removal of these entries, including the average number of results per match.
+- You can specify the number of incorrect entries to remove and evaluate the impact 
+  on search accuracy.
+- The script calculates the most frequently occurring incorrect entries and their effect on the 
+  accuracy of search results based on the latest validation data.
+- It provides information about the results before and after the removal of these entries, 
+  including the average number of results per match.
 
 2. Delete Incorrect Entries:
-   - After reviewing the impact of removal, you have the option to permanently delete the specified number of most frequently occurring incorrect entries from 'phrases.json.'
+- After reviewing the impact of removal, you have the option to permanently delete the 
+  specified number of most frequently occurring incorrect entries from 'phrases.json.'
 
-Please note: After running the script for the first time, it was determined that removing the 318 most frequently occurring incorrect entries from 'phrases.json' resulted in a significant reduction in the number of results provided for search queries (approximately 47%) while retaining the same accuracy level.
+Please note: After running the script for the first time, it was determined that removing 
+the 318 most frequently occurring incorrect entries from 'phrases.json' resulted in a significant 
+reduction in the number of results provided for search queries (approximately 47%) while 
+retaining the same accuracy level.
 """
 
 
@@ -25,7 +33,7 @@ from Z_module import CompactJSONEncoder
 
 def remove_entries(entries):
     # load the json file
-    with open("phrases.json", encoding="UTF-8") as f:
+    with open("englishidioms/phrases.json", encoding="UTF-8") as f:
         phrases = json.load(f)
 
     # create a json string
@@ -45,11 +53,11 @@ def remove_entries(entries):
             file["dictionary"].append(entry)
 
     # overwrite the file
-    with open("phrases.json", "w", encoding="UTF8") as f:
+    with open("englishidioms/phrases.json", "w", encoding="UTF8") as f:
         json.dump(file, f, indent=2, cls=CompactJSONEncoder, ensure_ascii=False)
 
     # 2- remove deleted ranges from examples.pickle
-    with open("examples.pickle", "rb") as file:
+    with open("files/examples.pickle", "rb") as file:
         examples = pickle.load(file)
 
     examples_after_edit = []
@@ -58,7 +66,7 @@ def remove_entries(entries):
             examples_after_edit.append(example)
 
     # overwrite the file
-    with open("examples.pickle", "wb") as file:
+    with open("files/examples.pickle", "wb") as file:
         pickle.dump(examples_after_edit, file)
 
 
