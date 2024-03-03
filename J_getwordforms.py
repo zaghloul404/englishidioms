@@ -32,10 +32,17 @@ python J_getwordforms.py
 """
 
 import json
+import os
 
+import nltk
 from word_forms.word_forms import get_word_forms
 
 from Z_module import CompactJSONEncoder
+
+# manually point nltk to local nltk_data folder that includes wordnet - required for get_word_forms
+current_dir = os.path.dirname(__file__)
+nltk_data_dir = os.path.join(current_dir, "englishidioms", "nltk_data")
+nltk.data.path.append(nltk_data_dir)
 
 
 def get_forms(word):

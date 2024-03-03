@@ -1,4 +1,4 @@
-""" Script for Validating the Search Algorithm
+r""" Script for Validating the Search Algorithm
 
 Description:
 This script is designed to validate the functionality of the `get_potential_matches()` and 
@@ -38,14 +38,22 @@ Please run this script from the command line (CMD)
 Example:
 python M_validate.py
 
-Validation notes:
-- validation_data_29_06_2023_21_55: is the first validation i ran, it contained all entries 
-  in phrases.json - nothing chopped off.
-  after running it, i decided to remove the 318 most frequently occurring incorrect entries 
-  from 'phrases.json' and ran another validation
+Validation history:
+- validation_data_29_06_2023_21_55
+    is the first validation i ran, it contained all entries in phrases.json - nothing chopped off.
+    after running it, i decided to remove the 318 most frequently occurring incorrect entries 
+    from 'phrases.json' and ran another validation
 - validation_data_03_07_2023_14_14
-- validation_data_26_02_2024_5_42: ran this validation after updating the algorithm and 
-swritching from using record to combinations - no entried were removed.
+- validation_data_26_02_2024_5_42
+    ran this validation after updating the algorithm and switching from using record 
+    to combinations - no entried were removed.
+- validation_data_28_02_2024_9_01
+    made a minor change to regrex in algorithm changed \b to \W to iclude words that ends 
+    with an apostroph
+- validation_data_01_03_2024_8_20
+    that previous change made  some problems appear that weren't there before, so i needed to
+    update the regex and span in  look_closer() fuction. the final result is slighty better than 
+    validation_data_26_02_2024_5_42. only one percent increase in algorithm accuracy.
 """
 
 import datetime
@@ -152,7 +160,7 @@ if __name__ == "__main__":
     # Generate a timestamp & file name
     # date_time = datetime.datetime.now()
     # file_name = f'validation_data_{date_time.strftime("%d_%m_%Y")}'
-    file_name = "validation_data_26_02_2024"
+    file_name = "validation_data_01_03_2024"
 
     if os.path.exists(f"files/{file_name}.pickle"):
         with open(f"files/{file_name}.pickle", "rb") as file:

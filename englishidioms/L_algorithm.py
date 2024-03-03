@@ -331,7 +331,9 @@ def get_potential_matches(sentence, sentence_lemma):
 
                 elif len(r.split()) == 1:  # a single word constant
                     # let's see if any of the word forms of the constant exist in the sentence
-                    p = re.compile(rf"\b({'|'.join(wf[0])})\b", re.IGNORECASE)
+                    p = re.compile(
+                        rf"(?:^|\W|\b)({'|'.join(wf[0])})(?:\W|\b|$)", re.IGNORECASE
+                    )
 
                     m = p.search(sentence)
 
@@ -354,7 +356,10 @@ def get_potential_matches(sentence, sentence_lemma):
                             word_match_count += 1
                         else:
                             # let's see if any of the word forms exist in the sentence
-                            p = re.compile(rf"\b({'|'.join(wf[c])})\b", re.IGNORECASE)
+                            p = re.compile(
+                                rf"(?:^|\W|\b)({'|'.join(wf[c])})(?:\W|\b|$)",
+                                re.IGNORECASE,
+                            )
 
                             m = p.search(sentence)
 
@@ -443,14 +448,21 @@ def look_closer(potential_matches, sentence, sentence_lemma):
                 a in ["article", "verb", "o-constant", "constant"]
                 and len(r.split()) == 1
             ):
-                p = re.compile(rf"\b({'|'.join(wf[0])})\b", re.IGNORECASE)
-
+                p = re.compile(
+                    rf"(?:^|\W|\b)({'|'.join(wf[0])})(?:\W|\b|$)", re.IGNORECASE
+                )
                 match = p.findall(
                     sentence
                 )  # returns a list of all matches, or empty list in case of no match
 
+                # Note: if '\W' matched in the regex pattern, the match would include a white space
+                # - which will through the span off, in that case we need to capture group(1).
+                # [span] first checks if m.groups() is not empty to ensure that the match has any
+                # groups at all. Then it checks if m.group(1) exists before accessing it.
+                # If both conditions are met, it captures m.span(1); otherwise, it captures m.span()
                 span = [
-                    m.span() for m in p.finditer(sentence)
+                    m.span(1) if m.groups() and m.group(1) else m.span()
+                    for m in p.finditer(sentence)
                 ]  # returns a list of all m.span, or empty list in case of no match
 
                 # update the record
@@ -462,9 +474,14 @@ def look_closer(potential_matches, sentence, sentence_lemma):
                     # let's see if any word forms exist in the lemmatized sentence
                     sentence_lemma_string = " ".join(sentence_lemma)
 
-                    p = re.compile(rf"\b({'|'.join(wf[0])})\b", re.IGNORECASE)
+                    p = re.compile(
+                        rf"(?:^|\W|\b)({'|'.join(wf[0])})(?:\W|\b|$)", re.IGNORECASE
+                    )
                     match = p.findall(sentence_lemma_string)
-                    span = [m.span() for m in p.finditer(sentence_lemma_string)]
+                    span = [
+                        m.span(1) if m.groups() and m.group(1) else m.span()
+                        for m in p.finditer(sentence_lemma_string)
+                    ]
 
                     # update the record
                     if len(match) > 1 and len(span) > 1:
@@ -477,11 +494,14 @@ def look_closer(potential_matches, sentence, sentence_lemma):
                 and len(r.split()) > 1
             ):
                 for c, w in enumerate(r.split()):
-                    p = re.compile(rf"\b({'|'.join(wf[c])})\b", re.IGNORECASE)
-
+                    p = re.compile(
+                        rf"(?:^|\W|\b)({'|'.join(wf[c])})(?:\W|\b|$)", re.IGNORECASE
+                    )
                     match = p.findall(sentence)
-
-                    span = [m.span() for m in p.finditer(sentence)]
+                    span = [
+                        m.span(1) if m.groups() and m.group(1) else m.span()
+                        for m in p.finditer(sentence)
+                    ]
 
                     # add the values to the dictionary inside record
                     if len(match) > 1 and len(span) > 1:
@@ -491,9 +511,14 @@ def look_closer(potential_matches, sentence, sentence_lemma):
                     else:
                         sentence_lemma_string = " ".join(sentence_lemma)
 
-                        p = re.compile(rf"\b({'|'.join(wf[c])})\b", re.IGNORECASE)
+                        p = re.compile(
+                            rf"(?:^|\W|\b)({'|'.join(wf[c])})(?:\W|\b|$)", re.IGNORECASE
+                        )
                         match = p.findall(sentence_lemma_string)
-                        span = [m.span() for m in p.finditer(sentence_lemma_string)]
+                        span = [
+                            m.span(1) if m.groups() and m.group(1) else m.span()
+                            for m in p.finditer(sentence_lemma_string)
+                        ]
 
                         # update the record
                         if len(match) > 1 and len(span) > 1:
