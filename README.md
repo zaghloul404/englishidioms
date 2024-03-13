@@ -67,14 +67,16 @@ Next, we convert the PDF into a more usable format, a docx document called 'clea
 
 **2. Preparing the Data:**
 
-We go through a series of eleven steps to process and refine the data from 'clean-output.docx' and save it in 'phrases.json.' Each step is managed by a specific Python module:
+We go through a series of twelve steps to process and refine the data from 'clean-output.docx' and save it in 'phrases.json.' Each step is managed by a specific Python module:
 
 - A_breakitup.py: Break the text in clean-output.docx into individual dictionary entries
+- A_splitrandom.py: **[New Module]** parse and split dictionary entries with random and unpatterned variations.
 - B_breakitup.py: Separate single phrase entries from multiple phrase entries
 - C_readit.py: Parse Dictionary Entries with Multiple Idiomatic Expressions
 - D_readit.py: Parse Dictionary Entries with single Idiomatic Expression
 - E_tidyup.py: Parse Optional Constants and Correct Special Entries in phrases.json
 - F_tidyup.py: Clean up the 'alt' and 'runs' Lists in phrases.json
+- FF_manualoverride.py: Manually override entries in phrases.json that do not follow expected patterns
 - G_asterisk.py: Parse Verbs Associated with the Asterisk in Dictionary Entries
 - H_hyphenated_words.py: Create Duplicates for Entries with Hyphenated Words
 - I_getpatterns.py: Generate Search Patterns for Idiomatic Expressions
@@ -83,7 +85,7 @@ We go through a series of eleven steps to process and refine the data from 'clea
 
 It's important to run these modules in the specified order to create the final version of 'phrases.json,' which is the comprehensive database for data from 'clean-output.docx.' On Windows CMD, you can run them sequentially using this command:
 
-    python A_breakitup.py && python B_breakitup.py && python C_readit.py && python D_readit.py && python E_tidyup.py && python F_tidyup.py && python G_asterisk.py && python H_hyphenated_words.py && python I_getpatterns.py && python J_getwordforms.py && python K_getexamples.py
+    python A_breakitup.py && python A_splitrandom.py && python B_breakitup.py && python C_readit.py && python D_readit.py && python E_tidyup.py && python F_tidyup.py && python FF_manualoverride.py && python G_asterisk.py && python H_hyphenated_words.py && python I_getpatterns.py && python J_getwordforms.py && python K_getexamples.py
 
 **3. Core Functionality:**
 

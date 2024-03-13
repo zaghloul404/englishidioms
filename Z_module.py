@@ -211,6 +211,8 @@ def runtype(ri, run, mode=""):
         and run.font.size.pt == float("8.5")
     ):
         return "article"
+    elif run.bold and re.match(r"[1-9]\.", run.text.strip()):
+        return "new_sense"
     elif (
         run.bold
         and run.font.name == "Formata-Medium"
@@ -326,7 +328,8 @@ def cleanup(line_alt_list, line_runs_list):
 
 def copy_docx(ranges_list, output_file):
     """
-    a function to copy lines (within a given list of ranges) from clean-output.docx into output_file.docx
+    a function to copy lines (within a given list of ranges) from clean-output.docx into
+    output_file.docx
     created a function as I needed to use this code multiple times
     """
 
@@ -380,24 +383,92 @@ def copy_docx(ranges_list, output_file):
     new_doc.save(f"files/{output_file}.docx")  # save the docx file locally
 
 
+def correct_sense_numbering(entry_html):
+    """Corrects sense/definition numbering in a dictionary entry HTML string.
+
+    Args:
+        entry_html (str): The HTML string representing the dictionary entry.
+
+    Returns:
+        str: HTML string with corrected sense numbering and double spaces replaced by single spaces.
+
+    Example:
+        >>> entry_body_html = '''<strong>3. </strong>[for something] to</p><p>cave in to the
+        pressure of moving air. _ <em> The door blew in</em></p><p><em>during the storm. </em>_
+        <em>The window blew in from the wind.</em></p>'''
+        >>> corrected_html = correct_sense_numbering(entry_body_html)
+        >>> print(corrected_html)
+        <p> [for something] to</p><p>cave in to the pressure of moving air. _ <em>
+        The door blew in</em></p><p><em>during the storm. </em>_ <em>The window blew in from
+        the wind.</em></p>
+
+    """
+    # Define pattern to match senses
+    sense_pattern = r"<strong>(\d+)\. </strong>"
+
+    # Find all matches of sense pattern
+    matches = re.findall(sense_pattern, entry_html)
+
+    # If no matches found, return original HTML
+    if not matches:
+        return entry_html.replace("  ", " ")
+
+    # If only one sense remains, remove sense numbering altogether
+    if len(matches) == 1:
+        return re.sub(sense_pattern, "", entry_html).replace("  ", " ")
+
+    # Iterate over matches and build a mapping of old sense numbers to new sense numbers
+    sense_mapping = {}
+    new_sense_number = 1
+    for old_sense_number in sorted(set(matches), key=int):
+        sense_mapping[old_sense_number] = str(new_sense_number)
+        new_sense_number += 1
+
+    # Replace old sense numbers with new sense numbers in HTML
+    corrected_html = entry_html
+    for old_sense, new_sense in sense_mapping.items():
+        corrected_html = re.sub(
+            f"<strong>{old_sense}\. </strong>",
+            f"<strong>{new_sense}. </strong>",
+            corrected_html,
+        )
+
+    return corrected_html.replace("  ", " ")
+
+
 def parse_entry(entry_range, cut_off, multiple_phrases=False, line_runs=[]):
     """
     Function Description:
-    The parse_entry function extracts and processes an entry head and body from the "clean-output.docx" document, returning the phrase text, phrase HTML, and definition HTML for the entry.
+    The parse_entry function extracts and processes an entry head and body from the
+    "clean-output.docx" document, returning the phrase text, phrase HTML, and definition HTML
+    for the entry.
 
     Function Parameters:
-    - entry_range (tuple): A tuple (s, e) representing the range of lines to be copied from "clean-output.docx." The function will extract content from line s to line e.
-    - cut_off (int): The index that marks the end of the entry head. All content before this index is considered part of the entry head, and content after it is part of the entry body.
-    - multiple_phrases (bool, optional): A flag indicating whether the entry head contains multiple phrases. If True, the function will extract and process each phrase separately. Default is False.
-    - line_runs (list, optional): A list of runs representing lines. This is used when multiple_phrases is True to extract individual phrases.
+    - entry_range (tuple): A tuple (s, e) representing the range of lines to be copied from
+      "clean-output.docx." The function will extract content from line s to line e.
+    - cut_off (int): The index that marks the end of the entry head.
+      All content before this index is considered part of the entry head, and content after
+      it is part of the entry body.
+    - multiple_phrases (bool, optional): A flag indicating whether the entry head contains
+      multiple phrases. If True, the function will extract and process each phrase separately.
+      Default value is False.
+    - line_runs (list, optional): A list of runs representing lines.
+      This is used when multiple_phrases is True to extract individual phrases.
 
     Function Usage:
-    1. The function checks whether the entry with the specified entry_range has been processed before by loading entries from a pickled file called "entry_details.pickle." If the entry has been processed previously, it returns the cached results.
-    2. If the entry is not found in the cache, it opens the "clean-output.docx" document and extracts its content.
-    3. The entry head content is saved to "entry_head.docx," and the entry body content is saved to "entry_body.docx."
-    4. If multiple_phrases is True, the entry head is divided into individual phrases, and both phrase text and HTML are generated.
-    5. For each phrase, temporary docx files ("phrase_0.docx," "phrase_1.docx," etc.) are created and processed, and the results are cached.
-    6. HTML for the entry body is generated and processed, removing terms and making modifications to the HTML content.
+    1. The function checks whether the entry with the specified entry_range has been processed
+       before by loading entries from a pickled file called "entry_details.pickle."
+       If the entry has been processed previously, it returns the cached results.
+    2. If the entry is not found in the cache, it opens the "clean-output.docx" document and
+       extracts its content.
+    3. The entry head content is saved to "entry_head.docx," and the entry body content is
+       saved to "entry_body.docx."
+    4. If multiple_phrases is True, the entry head is divided into individual phrases,
+       and both phrase text and HTML are generated.
+    5. For each phrase, temporary docx files ("phrase_0.docx," "phrase_1.docx," etc.) are created
+       and processed, and the results are cached.
+    6. HTML for the entry body is generated and processed, removing terms and making modifications
+       to the HTML content.
     7. The temporarily created docx files are deleted, and the results are pickled and cached.
     8. The function returns phrase text, phrase HTML, and entry body HTML.
 
@@ -408,7 +479,9 @@ def parse_entry(entry_range, cut_off, multiple_phrases=False, line_runs=[]):
     multiple_phrases = True  # If entry head has multiple phrases
     line_runs = [...]  # List of runs representing lines (only needed when multiple_phrases is True)
 
-    phrase_text, phrase_html, entry_body_html = parse_entry(entry_range, cut_off, multiple_phrases, line_runs)
+    phrase_text, phrase_html, entry_body_html = parse_entry(
+        (s, e), len(line_runs), multiple_phrases, line_runs
+    )
     ```
     """
 
@@ -473,7 +546,8 @@ def parse_entry(entry_range, cut_off, multiple_phrases=False, line_runs=[]):
     tmp_doc_1.save("entry_head.docx")
 
     if multiple_phrases:
-        ## step #1 - create phrase_text - a list of strings, each is an individual phrase in the entry head
+        ## step #1
+        # create phrase_text - a list of strings, each is an individual phrase in the entry head
         #######################
         phrase_text = []
         for lr in line_runs:
@@ -481,7 +555,9 @@ def parse_entry(entry_range, cut_off, multiple_phrases=False, line_runs=[]):
             pt1 = pt.replace("1.", "").replace("* ", "*")
             phrase_text.append(pt1.strip())
 
-        ## step #2 - create phrase_html -  a list of strings, each is an HTML code block that represents a phrase in the entry head
+        ## step #2
+        # create phrase_html - a list of strings, each is an HTML code block that represents
+        # a phrase in the entry head
         #######################
         phrase_html = []
         tmp_docx_files = []
@@ -598,6 +674,8 @@ def parse_entry(entry_range, cut_off, multiple_phrases=False, line_runs=[]):
                 .replace(" </strong></p>", "</strong></p>")
                 .replace("</p><p>", " ")
                 .replace("<strong>;</strong>", "")
+                .replace("</em> <em>", " ")
+                .replace("</em><em>", "")
             )
 
             # delete the file as it's no longer needed
@@ -644,6 +722,8 @@ def parse_entry(entry_range, cut_off, multiple_phrases=False, line_runs=[]):
             .replace(" </p>", "</p>")
             .replace(" </strong></p>", "</strong></p>")
             .replace("</p><p>", " ")
+            .replace("</em> <em>", " ")
+            .replace("</em><em>", "")
         )
 
     # create a temp docx document for entry body
@@ -683,44 +763,46 @@ def parse_entry(entry_range, cut_off, multiple_phrases=False, line_runs=[]):
         generated_html = result.value  # The generated HTML
 
     # remove terms from definitions
-    terms = [
-        "Cliché",
-        "Euph.",
-        "Fig.",
-        "Inf.",
-        "Lit.",
-        "Prov.",
-        "Rur.",
-        "Sl.",
-        "Euph",
-        "Fig",
-        "Inf",
-        "Lit",
-        "Prov",
-        "Rur",
-        "Sl",
-        "Prov. Cliché",
-        "Fig. Cliché",
-        "Fig. Inf.",
-        "Fig. Sl.",
-        "Fig. Euph.",
-        "Cliché Fig.",
-        "Euph. Fig.",
-        "Inf. Fig.",
-        "Lit. Fig.",
-        "Inf. Lit.",
-    ]
-    for term in terms:
-        generated_html = generated_html.replace(
-            f"{term} ", ""
-        )  # remove terms and training whitespace
-        generated_html = generated_html.replace(term, "")
+    # terms = [
+    #     "Cliché",
+    #     "Euph.",
+    #     "Fig.",
+    #     "Inf.",
+    #     "Lit.",
+    #     "Prov.",
+    #     "Rur.",
+    #     "Sl.",
+    #     "Euph",
+    #     "Fig",
+    #     "Inf",
+    #     "Lit",
+    #     "Prov",
+    #     "Rur",
+    #     "Sl",
+    #     "Prov. Cliché",
+    #     "Fig. Cliché",
+    #     "Fig. Inf.",
+    #     "Fig. Sl.",
+    #     "Fig. Euph.",
+    #     "Cliché Fig.",
+    #     "Euph. Fig.",
+    #     "Inf. Fig.",
+    #     "Lit. Fig.",
+    #     "Inf. Lit.",
+    # ]
+    # for term in terms:
+    #     generated_html = generated_html.replace(
+    #         f"{term} ", ""
+    #     )  # remove terms and training whitespace
+    #     generated_html = generated_html.replace(term, "")
 
     # let's make some modifications to the HTML
     # https://stackoverflow.com/questions/59072514/efficiently-make-many-multiple-substitutions-in-a-string/59072515#59072515
 
     replace = {
         "</p><p>": " ",
+        "</em> <em>": " ",
+        "</em><em>": "",
         "_": "<br>_",
         "<strong>2. </strong>": "<br><strong>2. </strong>",
         "<strong>3. </strong>": "<br><strong>3. </strong>",
@@ -747,6 +829,13 @@ def parse_entry(entry_range, cut_off, multiple_phrases=False, line_runs=[]):
     entry_body_html = re.sub(
         r"\(See also.+?\)\.\)|\(See also.+?\)", "", entry_body_html
     )
+
+    # remove entry sense/definition if it was only reference to another entry
+    # e.g. "<strong>1. </strong>Go to blow in (from some place)."
+    # and correct definition numbering if needed
+    goto_pattern = r"<strong>[1-9]\. <\/strong>Go to.+?\."
+    entry_body_html = re.sub(goto_pattern, "", entry_body_html)
+    entry_body_html = correct_sense_numbering(entry_body_html)
 
     # delete the temporarily created docx files
     try:

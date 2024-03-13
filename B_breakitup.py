@@ -79,6 +79,12 @@ ranges_MULT = []  # a list of ranges - entries with multiple phrases
 
 # go through each entry (start, end) and determine if it has a single phrase or multiple phrases
 for s, e in tqdm(ranges):
+
+    if (s, e) in [(26246, 26255)]:
+        # hardcoding this one as it did not follow expected pattern
+        ranges_MULT.append((s, e))
+        continue
+
     multiple_phrases = False
 
     # create two lists for runs/alt pairs for each entry
@@ -100,7 +106,7 @@ for s, e in tqdm(ranges):
             multiple_phrases = True
 
     if multiple_phrases:
-        # 2421 multiple phrase entries
+        # 2422 multiple phrase entries
         ranges_MULT.append((s, e))
     else:
         ranges_SNGL.append((s, e))
@@ -118,40 +124,40 @@ with open("files/ranges_MULT.pickle", "wb") as file:
 
 # Output File #3 (optional)
 # save single phrase entries to a text file
-# print("creating single_phrase_entries.txt")
-# text_file_1 = str()
-# for s, e in tqdm(ranges_SNGL):
-#     # add range
-#     text_file_1 = text_file_1 + "\n" + f"[{s}, {e}]"
-#     # add entry lines from clean-output.docx
-#     for i in range(s, e + 1):
-#         text_file_1 = text_file_1 + "\n" + lines[i].text
-#     # add a line break after each entry
-#     text_file_1 = text_file_1 + "\n" + "*" * 50
-# # write string to desk
-# with open("files/single_phrase_entries.txt", "w") as myfile:
-#     myfile.write(text_file_1)
+print("creating single_phrase_entries.txt")
+text_file_1 = str()
+for s, e in tqdm(ranges_SNGL):
+    # add range
+    text_file_1 = text_file_1 + "\n" + f"[{s}, {e}]"
+    # add entry lines from clean-output.docx
+    for i in range(s, e + 1):
+        text_file_1 = text_file_1 + "\n" + lines[i].text
+    # add a line break after each entry
+    text_file_1 = text_file_1 + "\n" + "*" * 50
+# write string to desk
+with open("files/single_phrase_entries.txt", "w", encoding="UTF-8") as myfile:
+    myfile.write(text_file_1)
 
 # Output File #4 (optional)
 # save single phrase entries to a docx file - for better readability
-# copy_docx(ranges_SNGL, "single_phrase_entries")
+copy_docx(ranges_SNGL, "single_phrase_entries")
 
 # Output File #5 (optional)
 # save multiple phrase entries to a text file
-# print("creating multiple_phrase_entries.txt")
-# text_file_2 = str()
-# for s, e in tqdm(ranges_MULT):
-#     # add range
-#     text_file_2 = text_file_2 + "\n" + f"[{s}, {e}]"
-#     # add entry lines from clean-output.docx
-#     for i in range(s, e + 1):
-#         text_file_2 = text_file_2 + "\n" + lines[i].text
-#     # add a line break after each entry
-#     text_file_2 = text_file_2 + "\n" + "*" * 50
-# # write string to desk
-# with open("files/multiple_phrase_entries.txt", "w") as myfile:
-#     myfile.write(text_file_2)
+print("creating multiple_phrase_entries.txt")
+text_file_2 = str()
+for s, e in tqdm(ranges_MULT):
+    # add range
+    text_file_2 = text_file_2 + "\n" + f"[{s}, {e}]"
+    # add entry lines from clean-output.docx
+    for i in range(s, e + 1):
+        text_file_2 = text_file_2 + "\n" + lines[i].text
+    # add a line break after each entry
+    text_file_2 = text_file_2 + "\n" + "*" * 50
+# write string to desk
+with open("files/multiple_phrase_entries.txt", "w", encoding="UTF-8") as myfile:
+    myfile.write(text_file_2)
 
 # Output File #6 (optional)
 # save multiple phrase entries to a docx file - for better readability
-# copy_docx(ranges_MULT, "multiple_phrase_entries")
+copy_docx(ranges_MULT, "multiple_phrase_entries")

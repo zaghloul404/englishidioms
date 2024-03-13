@@ -22,15 +22,23 @@ The script works as follows:
    This report generation script will further analyze the data and present it in a 
    human-readable format to demonstrate the accuracy of the search algorithm.
 
+Note: my macbook air struggles to go through the 18395 entries in one go in order to create a 
+validation. so i've broken down the task into 19 smaller pieces. i use run_validation.sh to start 
+a new validation and validation_progress.pickle to keep track of the progress. we every new 
+validation, you need to delete validation_progress.pickle.
+
+
 Input:
 - examples.pickle
 
 Output:
 - validation_data.pickle
+- validation_progress.pickle
 
 Runtime:
 The runtime for the validation process, when executed on a single CPU core, 
-is estimated to be around 30 hours
+is estimated to be around 30 hours. (10 hours on MacBook Air utilizing 8 cores 
+and running the validation throught run_validation.sh)
 
 Usage:
 Please run this script from the command line (CMD)
@@ -46,14 +54,31 @@ Validation history:
 - validation_data_03_07_2023_14_14
 - validation_data_26_02_2024_5_42
     ran this validation after updating the algorithm and switching from using record 
-    to combinations - no entried were removed.
+    to combinations - no entries were removed.
 - validation_data_28_02_2024_9_01
-    made a minor change to regrex in algorithm changed \b to \W to iclude words that ends 
-    with an apostroph
+    made a minor change to regrex in algorithm changed \b to \W to include words that ends 
+    with an apostrophe
 - validation_data_01_03_2024_8_20
-    that previous change made  some problems appear that weren't there before, so i needed to
-    update the regex and span in  look_closer() fuction. the final result is slighty better than 
-    validation_data_26_02_2024_5_42. only one percent increase in algorithm accuracy.
+    reason:
+    that previous change made some problems appear that weren't there before, so i needed to
+    update the regex and span in look_closer() function. 
+    results:
+    slightly better than validation_data_26_02_2024_5_42. 
+    only one percent increase in algorithm accuracy.
+- validation_data_12_03_2024_02_09
+    reason:
+    i've added the python module A_splitrandom into the workflow and it addes 265 new entries to
+    phrases.json. i've also changes how examples get parsed in K_getexamples - so more 
+    examples/entries.
+    results:
+    accuracy is still at 91%
+- validation_data_13_03_2024
+    reason:
+    i've decreased the distance factor calculated by max_words_between() in L_algorithm down to 2
+    (3 was the original number) to see how that would affect the accuracy of the results
+    results:
+    acurracy went down to 88%, with no segnificant improvement in any aspect, so i'm reverting the 
+    distance back to 3
 """
 
 import datetime
@@ -158,9 +183,9 @@ if __name__ == "__main__":
     ]
 
     # Generate a timestamp & file name
-    # date_time = datetime.datetime.now()
-    # file_name = f'validation_data_{date_time.strftime("%d_%m_%Y")}'
-    file_name = "validation_data_01_03_2024"
+    date_time = datetime.datetime.now()
+    file_name = f'validation_data_{date_time.strftime("%d_%m_%Y")}'
+    # file_name = "validation_data_13_03_2024"
 
     if os.path.exists(f"files/{file_name}.pickle"):
         with open(f"files/{file_name}.pickle", "rb") as file:

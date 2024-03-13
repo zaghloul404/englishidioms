@@ -356,8 +356,15 @@ def get_potential_matches(sentence, sentence_lemma):
                             word_match_count += 1
                         else:
                             # let's see if any of the word forms exist in the sentence
+
+                            # Escape special characters in word forms to prevent regex errors
+                            # When constructing regular expressions, certain characters such
+                            # as '+', '*', '^', '$', etc., have special meanings.
+                            # If these characters appear in the word forms and are not properly
+                            # escaped, they can lead to errors during regex pattern compilation.
+                            escaped_word_forms = [re.escape(word) for word in wf[c]]
                             p = re.compile(
-                                rf"(?:^|\W|\b)({'|'.join(wf[c])})(?:\W|\b|$)",
+                                rf"(?:^|\W|\b)({'|'.join(escaped_word_forms)})(?:\W|\b|$)",
                                 re.IGNORECASE,
                             )
 
@@ -494,9 +501,12 @@ def look_closer(potential_matches, sentence, sentence_lemma):
                 and len(r.split()) > 1
             ):
                 for c, w in enumerate(r.split()):
+                    escaped_word_forms = [re.escape(word) for word in wf[c]]
                     p = re.compile(
-                        rf"(?:^|\W|\b)({'|'.join(wf[c])})(?:\W|\b|$)", re.IGNORECASE
+                        rf"(?:^|\W|\b)({'|'.join(escaped_word_forms)})(?:\W|\b|$)",
+                        re.IGNORECASE,
                     )
+
                     match = p.findall(sentence)
                     span = [
                         m.span(1) if m.groups() and m.group(1) else m.span()
@@ -511,9 +521,12 @@ def look_closer(potential_matches, sentence, sentence_lemma):
                     else:
                         sentence_lemma_string = " ".join(sentence_lemma)
 
+                        escaped_word_forms = [re.escape(word) for word in wf[c]]
                         p = re.compile(
-                            rf"(?:^|\W|\b)({'|'.join(wf[c])})(?:\W|\b|$)", re.IGNORECASE
+                            rf"(?:^|\W|\b)({'|'.join(escaped_word_forms)})(?:\W|\b|$)",
+                            re.IGNORECASE,
                         )
+
                         match = p.findall(sentence_lemma_string)
                         span = [
                             m.span(1) if m.groups() and m.group(1) else m.span()

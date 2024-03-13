@@ -57,7 +57,8 @@ from Z_module import CompactJSONEncoder, cleanup, parse_entry, runtype
 
 def split_by_semicolon(alt, runs):
     """
-    Splits elements within the given lists if a semicolon (';') is found in one of the runs and updates alt to match the new structure.
+    Splits elements within the given lists if a semicolon (';') is found in one of the runs
+    and updates alt to match the new structure.
 
     Args:
         alt (List[str]): A list of phrase alternatives.
@@ -71,11 +72,13 @@ def split_by_semicolon(alt, runs):
     Example:
         Input:
             alt = ["constant", "constant"]
-            runs = ["all over hell and half of Georgia;", "all over hell and gone; to hell and gone "]
+            runs = ["all over hell and half of Georgia;",
+                    "all over hell and gone; to hell and gone "]
 
         Output:
             alt = ['constant', ';', 'constant', ';', 'constant']
-            runs = ['all over hell and half of Georgia', ';', 'all over hell and gone', ';', ' to hell and gone ']
+            runs = ['all over hell and half of Georgia', ';',
+                    'all over hell and gone', ';', ' to hell and gone ']
     """
 
     new_alt = []
@@ -87,7 +90,7 @@ def split_by_semicolon(alt, runs):
             for e in re.split("(;)", r):
                 if len(e.strip()) == 0:
                     continue
-                elif e == ";":
+                if e == ";":
                     new_alt.append(";")
                     new_runs.append(e)
                 else:

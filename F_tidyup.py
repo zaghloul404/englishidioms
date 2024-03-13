@@ -1,7 +1,9 @@
 """ Clean up the 'alt' and 'runs' Lists in phrases.json
 
 Description:
-This script cleans up dictionary entries loaded from 'phrases.json', by processing the 'alt' and 'runs' lists for each entry. It applies a series of data-cleaning steps to ensure consistent and accurate information.
+This script cleans up dictionary entries loaded from 'phrases.json', by processing the 'alt' 
+and 'runs' lists for each entry.
+It applies a series of data-cleaning steps to ensure consistent and accurate information.
 
 Input:
 - phrases.json
@@ -41,7 +43,7 @@ def cleanup(line_alt, line_runs):
     # 1- remove special characters in runs
     # i for iteration, a for alternative, r for runs
     for i, (a, r) in enumerate(zip(line_alt, line_runs)):
-        line_runs[i] = re.sub(r"[()1.,!?]", "", r).strip()
+        line_runs[i] = re.sub(r"[()1.,!?;]", "", r).strip()
 
     # 2- remove empty strings & dagger items
     pop_index = []
@@ -49,15 +51,18 @@ def cleanup(line_alt, line_runs):
         if len(r.strip()) == 0 or a == "dagger":
             pop_index.append(i)
 
-    # Note that you need to delete them in reverse order so that you don't throw off the subsequent indexes.
+    # Note that you need to delete them in reverse order so that you don't throw off the
+    # subsequent indexes.
     for x in sorted(pop_index, reverse=True):
         del line_alt[x]
         del line_runs[x]
 
     # 3- for 12 entries, alt[0] = "constant" and runs[0] = "*" example: [2147, 2153]
-    # this happens as a result for the asterisk '*' coming at the start of the constant run and then followed by an o-constant
+    # this happens as a result for the asterisk '*' coming at the start of the constant run
+    # and then followed by an o-constant
 
-    # Note: the last or statement is for [634, 642], the asterisk comes at the end of a variable (and has the same format)
+    # Note: the last or statement is for [634, 642], the asterisk comes at the end of a variable
+    # (and has the same format)
     # split_by_semicolon() makes the split after semicolon and adds alt "variable" to run "*"
     if line_runs[0] == "*" and (line_alt[0] == "constant" or line_alt[0] == "variable"):
         line_alt[0] = "asterisk"
@@ -77,7 +82,7 @@ for entry in data["dictionary"]:
     clean_alt, clean_runs = cleanup(entry["alt"], entry["runs"])
 
     # an empty dict as a placeholder for updated entry details
-    new_dict = dict()
+    new_dict = {}
 
     # add all values to new_dict
     new_dict["range"] = entry["range"]

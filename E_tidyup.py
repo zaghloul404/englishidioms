@@ -1,8 +1,9 @@
 """ Parse Optional Constants and Correct Special Entries in phrases.json
 
 Description:
-This script iterates through all dictionary entries in phrases.json and applies the fixpairs() function to process and
-parse optional constants and resolve special entries, ensuring data consistency and accuracy.
+This script iterates through all dictionary entries in phrases.json and applies the fixpairs()
+function to process and parse optional constants and resolve special entries, 
+ensuring data consistency and accuracy.
 
 Input:
 - phrases.json
