@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="englishidioms",
-    version="0.0.3",
+    version="0.1.0",
     author="Mahmoud Zaghloul",
     description="An efficient Python package for detecting and identifying English idiomatic expressions and phrases within sentences.",
     long_description=long_description,
