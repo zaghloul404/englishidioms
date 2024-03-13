@@ -23,15 +23,18 @@ reduction in the number of results provided for search queries (approximately 47
 retaining the same accuracy level.
 """
 
-
+import json
 import os
 import pickle
 import sys
-import json
+
 from Z_module import CompactJSONEncoder
 
 
 def remove_entries(entries):
+
+    entry_ranges = [list(x[1]) for x in entries]
+
     # load the json file
     with open("englishidioms/phrases.json", encoding="UTF-8") as f:
         phrases = json.load(f)
@@ -49,7 +52,7 @@ def remove_entries(entries):
     file = json.loads(json_string)
 
     for entry in phrases["dictionary"]:
-        if entry["range"] not in entries:
+        if entry["range"] not in entry_ranges:
             file["dictionary"].append(entry)
 
     # overwrite the file
@@ -62,7 +65,7 @@ def remove_entries(entries):
 
     examples_after_edit = []
     for example in examples:
-        if example[0] not in entries:
+        if example[0] not in entry_ranges:
             examples_after_edit.append(example)
 
     # overwrite the file
